@@ -1,0 +1,698 @@
+package com.fighter.studykeyboard
+
+import android.app.AlertDialog
+import android.content.Intent
+import android.inputmethodservice.InputMethodService
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.text.InputType
+import android.view.ContextThemeWrapper
+import android.view.Gravity
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import com.fighter.studykeyboard.data.Note
+import com.fighter.studykeyboard.data.NoteStore
+import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.play.ReadingPlayer
+import com.fighter.studykeyboard.play.SpeechSpeaker
+import com.fighter.studykeyboard.play.TextTools
+import com.fighter.studykeyboard.ui.NotesAdapter
+
+/**
+ * Fighter Study Keyboard.
+ *
+ *  - unlimited notes saved on the phone
+ *  - "+ Add note" adds one more note (paste any study text)
+ *  - Play types the note into whatever app is focused, one word at a time
+ *  - speed slider controls how fast the words keep coming
+ *  - optional voice mode reads it aloud while it is typed
+ */
+class FighterKeyboardService : InputMethodService(),
+    ReadingPlayer.Listener,
+    SpeechSpeaker.Listener,
+    NotesAdapter.Callback {
+
+    private lateinit var store: NoteStore
+    private lateinit var prefs: PlayerPrefs
+    private lateinit var player: ReadingPlayer
+    private lateinit var speaker: SpeechSpeaker
+    private lateinit var notesAdapter: NotesAdapter
+
+    private var rootView: View? = null
+    private var frameMain: FrameLayout? = null
+    private var keyboardArea: View? = null
+    private var lettersArea: View? = null
+    private var symbolsArea: View? = null
+    private var notesPanel: View? = null
+    private var suggestionsScroll: View? = null
+    private var suggestionsBar: LinearLayout? = null
+
+    private var btnNotes: TextView? = null
+    private var btnPlay: TextView? = null
+    private var btnPause: TextView? = null
+    private var btnStop: TextView? = null
+    private var btnLoop: TextView? = null
+    private var btnVoice: TextView? = null
+    private var btnShift: TextView? = null
+
+    private var tvStatus: TextView? = null
+    private var tvSpeedValue: TextView? = null
+    private var seekSpeed: SeekBar? = null
+    private var lvNotes: ListView? = null
+    private var tvEmptyHint: View? = null
+
+    private val letterKeys = ArrayList<TextView>()
+    private var dictionary: List<String> = emptyList()
+
+    private var shiftOn = false
+    private var capsLock = false
+    private var lastShiftTapAt = 0L
+    private var notesOpen = false
+
+    private var idleStatus: String = ""
+    private var wordStatus: String = ""
+
+    private var spokenText = ""
+    private var spokenPos = 0
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var deleteRepeat: Runnable? = null
+
+    // ------------------------------------------------------------------ lifecycle
+
+    override fun onCreate() {
+        super.onCreate()
+        store = NoteStore.get(this)
+        prefs = PlayerPrefs(this)
+        player = ReadingPlayer(prefs) { currentInputConnection }
+        player.listener = this
+        speaker = SpeechSpeaker(this)
+        speaker.listener = this
+        refreshDictionary()
+        refreshIdleStatus()
+    }
+
+    override fun onCreateInputView(): View {
+        val view = layoutInflater.inflate(R.layout.keyboard_view, null)
+        rootView = view
+        frameMain = view.findViewById(R.id.frameMain)
+        keyboardArea = view.findViewById(R.id.keyboardArea)
+        lettersArea = view.findViewById(R.id.lettersArea)
+        symbolsArea = view.findViewById(R.id.symbolsArea)
+        notesPanel = view.findViewById(R.id.notesPanel)
+        suggestionsScroll = view.findViewById(R.id.suggestionsScroll)
+        suggestionsBar = view.findViewById(R.id.suggestionsBar)
+
+        btnNotes = view.findViewById(R.id.btnNotes)
+        btnPlay = view.findViewById(R.id.btnPlay)
+        btnPause = view.findViewById(R.id.btnPause)
+        btnStop = view.findViewById(R.id.btnStop)
+        btnLoop = view.findViewById(R.id.btnLoop)
+        btnVoice = view.findViewById(R.id.btnVoice)
+        btnShift = view.findViewById(R.id.btnShift)
+
+        tvStatus = view.findViewById(R.id.tvStatus)
+        tvSpeedValue = view.findViewById(R.id.tvSpeedValue)
+        seekSpeed = view.findViewById(R.id.seekSpeed)
+        lvNotes = view.findViewById(R.id.lvNotes)
+        tvEmptyHint = view.findViewById(R.id.tvEmptyHint)
+
+        notesAdapter = NotesAdapter(R.layout.item_note_dark, this)
+        lvNotes?.adapter = notesAdapter
+
+        letterKeys.clear()
+        bindKeys(view)
+        wireToolbar(view)
+        wireSpeed(view)
+        wireNotesPanel(view)
+
+        refreshNotes()
+        updateSpeedLabel()
+        updateToolbar()
+        applyShiftUi()
+        refreshStatus()
+        return view
+    }
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        refreshDictionary()
+        refreshNotes()
+        updateSpeedLabel()
+        updateToolbar()
+        refreshStatus()
+        updateSuggestions()
+        applyShiftUi()
+    }
+
+    override fun onFinishInputView(finishingInput: Boolean) {
+        super.onFinishInputView(finishingInput)
+        stopPlayback()
+        clearSuggestions()
+    }
+
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        deleteRepeat?.let { handler.removeCallbacks(it) }
+        player.stop()
+        speaker.shutdown()
+        super.onDestroy()
+    }
+
+    // ------------------------------------------------------------------ wiring
+
+    private fun wireToolbar(view: View) {
+        btnPlay?.setOnClickListener { startPlayback() }
+        btnPlay?.setOnLongClickListener {
+            startPlayback(playAll = true)
+            true
+        }
+        btnPause?.setOnClickListener { togglePause() }
+        btnStop?.setOnClickListener { stopPlayback() }
+        btnLoop?.setOnClickListener {
+            prefs.loop = !prefs.loop
+            updateToolbar()
+            toast(if (prefs.loop) "Loop on: note will repeat" else "Loop off")
+        }
+        btnVoice?.setOnClickListener {
+            prefs.voiceEnabled = !prefs.voiceEnabled
+            updateSpeedLabel()
+            updateToolbar()
+            toast(if (prefs.voiceEnabled) "Voice mode on" else "Voice mode off")
+        }
+        view.findViewById<View>(R.id.btnMore)?.setOnClickListener { openSettings() }
+        btnNotes?.setOnClickListener { openNotesPanel(!notesOpen) }
+    }
+
+    private fun wireNotesPanel(view: View) {
+        view.findViewById<View>(R.id.btnCloseNotes)?.setOnClickListener { openNotesPanel(false) }
+        view.findViewById<View>(R.id.btnAddNote)?.setOnClickListener { showNoteDialog(null) }
+        view.findViewById<View>(R.id.btnPlayAll)?.setOnClickListener { startPlayback(playAll = true) }
+    }
+
+    private fun wireSpeed(view: View) {
+        val seek = seekSpeed ?: return
+        seek.max = 100
+        seek.progress = prefs.speedProgress
+        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                prefs.speedProgress = progress
+                updateSpeedLabel()
+            }
+
+            override fun onStartTrackingTouch(bar: SeekBar?) = Unit
+
+            override fun onStopTrackingTouch(bar: SeekBar?) = Unit
+        })
+    }
+
+    private fun bindKeys(view: View) {
+        if (view is TextView) {
+            val tag = view.tag as? String
+            if (tag != null) {
+                if (tag == "key:del") {
+                    bindDeleteKey(view)
+                } else {
+                    view.setOnClickListener { onKey(tag, it) }
+                }
+                if (tag.startsWith("c:") && tag.length == 3) letterKeys.add(view)
+            }
+        }
+        if (view is ViewGroup) {
+            for (index in 0 until view.childCount) bindKeys(view.getChildAt(index))
+        }
+    }
+
+    private fun bindDeleteKey(key: View) {
+        key.setOnTouchListener { source, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    source.isPressed = true
+                    source.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                    deleteOne()
+                    val repeat = object : Runnable {
+                        override fun run() {
+                            deleteOne()
+                            handler.postDelayed(this, 55L)
+                        }
+                    }
+                    deleteRepeat = repeat
+                    handler.postDelayed(repeat, 380L)
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    source.isPressed = false
+                    stopDeleteRepeat()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun stopDeleteRepeat() {
+        deleteRepeat?.let { handler.removeCallbacks(it) }
+        deleteRepeat = null
+    }
+
+    private fun onKey(tag: String, source: View) {
+        source.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        when (tag) {
+            "key:shift" -> toggleShift()
+            "key:del" -> deleteOne()
+            "key:space" -> {
+                currentInputConnection?.commitText(" ", 1)
+                updateSuggestions()
+            }
+            "key:enter" -> {
+                currentInputConnection?.commitText("\n", 1)
+                updateSuggestions()
+            }
+            "key:mode" -> setSymbols(true)
+            "key:letters" -> setSymbols(false)
+            else -> if (tag.startsWith("c:")) typeChar(tag.substring(2))
+        }
+    }
+
+    // ------------------------------------------------------------------ typing
+
+    private fun typeChar(raw: String) {
+        val ic = currentInputConnection ?: return
+        var text = raw
+        if (shiftOn && text.length == 1 && text[0].isLetter()) text = text.uppercase()
+        ic.commitText(text, 1)
+        if (shiftOn && !capsLock) {
+            shiftOn = false
+            applyShiftUi()
+        }
+        updateSuggestions()
+    }
+
+    private fun deleteOne() {
+        val ic = currentInputConnection ?: return
+        val selected = ic.getSelectedText(0)
+        if (!selected.isNullOrEmpty()) {
+            ic.commitText("", 1)
+        } else {
+            ic.deleteSurroundingText(1, 0)
+        }
+        updateSuggestions()
+    }
+
+    private fun toggleShift() {
+        val now = System.currentTimeMillis()
+        if (now - lastShiftTapAt < 350L) {
+            capsLock = !capsLock
+            shiftOn = capsLock
+        } else {
+            shiftOn = !shiftOn
+            if (!shiftOn) capsLock = false
+        }
+        lastShiftTapAt = now
+        applyShiftUi()
+    }
+
+    private fun applyShiftUi() {
+        val upper = shiftOn || capsLock
+        for (key in letterKeys) {
+            val base = (key.tag as? String)?.substring(2) ?: continue
+            key.text = if (upper) base.uppercase() else base
+        }
+        btnShift?.isSelected = upper
+    }
+
+    private fun setSymbols(show: Boolean) {
+        lettersArea?.visibility = if (show) View.GONE else View.VISIBLE
+        symbolsArea?.visibility = if (show) View.VISIBLE else View.GONE
+        if (show) {
+            shiftOn = false
+            capsLock = false
+            applyShiftUi()
+        }
+    }
+
+    // ------------------------------------------------------------------ suggestions
+
+    private fun refreshDictionary() {
+        dictionary = TextTools.dictionary(store.all())
+    }
+
+    private fun updateSuggestions() {
+        val bar = suggestionsBar ?: return
+        if (notesOpen) {
+            clearSuggestions()
+            return
+        }
+        val ic = currentInputConnection
+        val before = ic?.getTextBeforeCursor(40, 0)?.toString().orEmpty()
+        val prefix = TextTools.currentWordPrefix(before)
+        val words = TextTools.suggestionsFor(prefix, dictionary, SUGGESTION_LIMIT)
+        bar.removeAllViews()
+        val horizontal = dp(8)
+        val vertical = dp(3)
+        for (word in words) {
+            val chip = TextView(this)
+            chip.text = word
+            chip.textSize = 13f
+            chip.setTextColor(colorRes(R.color.kb_text))
+            chip.setPadding(horizontal, vertical, horizontal, vertical)
+            chip.background = getDrawable(R.drawable.suggestion_chip)
+            chip.isClickable = true
+            chip.isFocusable = false
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.marginEnd = dp(5)
+            chip.layoutParams = params
+            chip.setOnClickListener { commitSuggestion(word) }
+            bar.addView(chip)
+        }
+    }
+
+    private fun clearSuggestions() {
+        suggestionsBar?.removeAllViews()
+    }
+
+    private fun commitSuggestion(word: String) {
+        val ic = currentInputConnection ?: return
+        val before = ic.getTextBeforeCursor(40, 0)?.toString().orEmpty()
+        val prefix = TextTools.currentWordPrefix(before)
+        if (prefix.isNotEmpty()) ic.deleteSurroundingText(prefix.length, 0)
+        ic.commitText("$word ", 1)
+        updateSuggestions()
+    }
+
+    // ------------------------------------------------------------------ playback
+
+    private fun startPlayback(note: Note? = null, playAll: Boolean = false) {
+        stopPlayback()
+        val text: String
+        if (playAll) {
+            text = store.combinedText()
+        } else if (note != null) {
+            text = note.text
+            prefs.lastNoteId = note.id
+        } else {
+            val last = prefs.lastNoteId?.let { store.get(it) }
+            if (last != null) {
+                text = last.text
+            } else {
+                text = store.combinedText()
+            }
+        }
+
+        if (text.isBlank()) {
+            toast(getString(R.string.no_notes_hint))
+            openNotesPanel(true)
+            return
+        }
+
+        openNotesPanel(false)
+        currentInputConnection?.finishComposingText()
+        spokenText = text
+        spokenPos = 0
+        wordStatus = ""
+
+        val voice = prefs.voiceEnabled
+        if (voice && speaker.supportsRangeSync()) {
+            speaker.start(text, prefs.speechRate, prefs.loop)
+        } else if (voice) {
+            // Older Android: read aloud and type at the same time.
+            player.start(text)
+            speaker.start(text, prefs.speechRate, false)
+        } else {
+            player.start(text)
+        }
+        updateToolbar()
+    }
+
+    private fun togglePause() {
+        if (player.isRunning) {
+            player.togglePause()
+            refreshStatus()
+        }
+    }
+
+    private fun stopPlayback() {
+        player.stop()
+        speaker.stop()
+        spokenPos = 0
+        wordStatus = ""
+        updateToolbar()
+        refreshStatus()
+    }
+
+    // ------------------------------------------------------------------ player callbacks
+
+    override fun onPlayerStarted(totalWords: Int) {
+        refreshStatus()
+        updateToolbar()
+    }
+
+    override fun onPlayerWord(index: Int, total: Int, word: String) {
+        wordStatus = getString(R.string.player_status, index + 1, total, word)
+        tvStatus?.text = wordStatus
+    }
+
+    override fun onPlayerFinished() {
+        wordStatus = ""
+        refreshStatus()
+        updateToolbar()
+    }
+
+    override fun onPlayerStateChanged() {
+        updateToolbar()
+        refreshStatus()
+    }
+
+    // ------------------------------------------------------------------ voice callbacks
+
+    override fun onSpeechStarted(charCount: Int) {
+        if (spokenPos > 0) currentInputConnection?.commitText("\n", 1)
+        spokenPos = 0
+        refreshStatus()
+        updateToolbar()
+    }
+
+    override fun onSpeechRange(start: Int, end: Int) {
+        val ic = currentInputConnection ?: return
+        val safeEnd = end.coerceIn(0, spokenText.length)
+        if (safeEnd <= spokenPos) return
+        ic.commitText(spokenText.substring(spokenPos, safeEnd), 1)
+        spokenPos = safeEnd
+        val rest = spokenText.substring(safeEnd).trimStart()
+        val current = rest.takeWhile { !it.isWhitespace() }
+        if (current.isNotEmpty()) tvStatus?.text = getString(R.string.status_speaking) + " " + current
+    }
+
+    override fun onSpeechDone() {
+        if (spokenPos < spokenText.length) {
+            currentInputConnection?.commitText(spokenText.substring(spokenPos), 1)
+            spokenPos = spokenText.length
+        }
+        refreshStatus()
+        updateToolbar()
+    }
+
+    override fun onSpeechUnavailable(reason: String) {
+        toast(getString(R.string.voice_unavailable))
+        refreshStatus()
+        updateToolbar()
+    }
+
+    override fun onSpeechStateChanged() {
+        updateToolbar()
+        refreshStatus()
+    }
+
+    // ------------------------------------------------------------------ status / toolbar
+
+    private fun updateToolbar() {
+        val running = player.isRunning || speaker.isRunning
+        btnPause?.isSelected = player.isPaused
+        btnPause?.isEnabled = player.isRunning
+        btnPause?.alpha = if (player.isRunning) 1f else 0.4f
+        btnStop?.isEnabled = running
+        btnStop?.alpha = if (running) 1f else 0.4f
+        btnLoop?.isSelected = prefs.loop
+        btnVoice?.isSelected = prefs.voiceEnabled
+        btnPlay?.isSelected = running
+        btnNotes?.isSelected = notesOpen
+    }
+
+    private fun refreshStatus() {
+        tvStatus?.text = when {
+            speaker.isRunning -> {
+                val rest = spokenText.substring(spokenPos.coerceIn(0, spokenText.length)).trimStart()
+                val current = rest.takeWhile { !it.isWhitespace() }
+                if (current.isEmpty()) getString(R.string.status_speaking)
+                else getString(R.string.status_speaking) + " " + current
+            }
+            player.isRunning && player.isPaused -> getString(R.string.status_paused)
+            player.isRunning -> if (wordStatus.isNotEmpty()) wordStatus else idleStatus
+            else -> if (idleStatus.isEmpty()) getString(R.string.status_checking) else idleStatus
+        }
+    }
+
+    private fun refreshIdleStatus() {
+        val notes = store.all()
+        var words = 0
+        for (note in notes) words += note.wordCount
+        idleStatus = getString(R.string.status_idle, notes.size, words)
+    }
+
+    private fun updateSpeedLabel() {
+        tvSpeedValue?.text = if (prefs.voiceEnabled) {
+            getString(R.string.speed_voice_value, prefs.speechRate)
+        } else {
+            getString(R.string.speed_type_value, prefs.wordDelayMs)
+        }
+        btnVoice?.isSelected = prefs.voiceEnabled
+    }
+
+    // ------------------------------------------------------------------ notes panel
+
+    private fun refreshNotes() {
+        val notes = store.all()
+        notesAdapter.submit(notes)
+        lvNotes?.visibility = if (notes.isEmpty()) View.INVISIBLE else View.VISIBLE
+        tvEmptyHint?.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
+        btnNotes?.text = getString(R.string.tb_notes_count, notes.size)
+        refreshIdleStatus()
+    }
+
+    private fun openNotesPanel(open: Boolean) {
+        notesOpen = open
+        if (open) {
+            stopPlayback()
+            refreshNotes()
+        }
+        notesPanel?.visibility = if (open) View.VISIBLE else View.GONE
+        keyboardArea?.visibility = if (open) View.GONE else View.VISIBLE
+        suggestionsScroll?.visibility = if (open) View.GONE else View.VISIBLE
+        btnNotes?.isSelected = open
+
+        val frame = frameMain
+        if (frame != null) {
+            val params = frame.layoutParams
+            if (params != null) {
+                params.height = resources.getDimensionPixelSize(
+                    if (open) R.dimen.keyboard_area_expanded else R.dimen.keyboard_area_height
+                )
+                frame.layoutParams = params
+            }
+            frame.requestLayout()
+        }
+        rootView?.requestLayout()
+        if (!open) updateSuggestions()
+    }
+
+    override fun onPlay(note: Note) {
+        startPlayback(note = note)
+    }
+
+    override fun onEdit(note: Note) {
+        showNoteDialog(note)
+    }
+
+    override fun onDelete(note: Note) {
+        confirmDelete(note)
+    }
+
+    private fun showNoteDialog(existing: Note?) {
+        stopPlayback()
+        val themed = ContextThemeWrapper(this, android.R.style.Theme_Material_Dialog_Alert)
+        val edit = EditText(themed).apply {
+            setText(existing?.text ?: "")
+            hint = getString(R.string.note_hint)
+            textSize = 15f
+            minLines = 6
+            maxLines = 12
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            gravity = Gravity.TOP or Gravity.START
+            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setSelection(text.length)
+        }
+        val container = FrameLayout(themed).apply {
+            setPadding(dp(18), dp(6), dp(18), dp(0))
+            addView(
+                edit,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
+        }
+        AlertDialog.Builder(themed)
+            .setTitle(if (existing == null) R.string.add_note else R.string.edit_note)
+            .setView(container)
+            .setPositiveButton(R.string.save) { _, _ -> saveNote(existing?.id, edit.text.toString()) }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun saveNote(id: String?, text: String) {
+        if (text.isBlank()) {
+            toast(getString(R.string.note_empty))
+            return
+        }
+        if (id == null) store.add(text) else store.update(id, text)
+        refreshDictionary()
+        refreshNotes()
+        updateToolbar()
+    }
+
+    private fun confirmDelete(note: Note) {
+        val themed = ContextThemeWrapper(this, android.R.style.Theme_Material_Dialog_Alert)
+        AlertDialog.Builder(themed)
+            .setTitle(R.string.delete_note)
+            .setMessage(note.preview(140))
+            .setPositiveButton(R.string.delete) { _, _ ->
+                store.delete(note.id)
+                if (prefs.lastNoteId == note.id) prefs.lastNoteId = null
+                refreshDictionary()
+                refreshNotes()
+                updateToolbar()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    // ------------------------------------------------------------------ helpers
+
+    private fun openSettings() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    @Suppress("DEPRECATION")
+    private fun colorRes(id: Int): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) resources.getColor(id, theme)
+        else resources.getColor(id)
+
+    private companion object {
+        const val SUGGESTION_LIMIT = 20
+    }
+}

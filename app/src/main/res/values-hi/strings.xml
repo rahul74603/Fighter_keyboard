@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">फाइटर स्टडी कीबोर्ड</string>
+    <string name="app_subtitle">अनलिमिटेड नोट्स • एक-एक शब्द ऑटो प्ले • स्पीड कंट्रोल</string>
+    <string name="ime_name">फाइटर स्टडी कीबोर्ड</string>
+    <string name="subtype_english">अंग्रेज़ी (पढ़ाई)</string>
+    <string name="subtype_hindi">हिंदी (पढ़ाई)</string>
+
+    <string name="tb_notes">नोट्स</string>
+    <string name="tb_play">प्ले</string>
+    <string name="tb_pause">रोकें</string>
+    <string name="tb_stop">स्टॉप</string>
+    <string name="tb_loop">लूप</string>
+    <string name="tb_voice">आवाज़</string>
+    <string name="tb_more">सेटिंग</string>
+    <string name="tb_notes_count">नोट्स %1$d</string>
+
+    <string name="status_idle">तैयार • %1$d नोट्स • %2$d शब्द</string>
+    <string name="status_paused">रुका हुआ • जारी रखने के लिए रोकें दबाएँ</string>
+    <string name="status_speaking">बोल रहा है…</string>
+    <string name="status_checking">कीबोर्ड स्टेटस देखा जा रहा है…</string>
+    <string name="status_selected">कीबोर्ड चालू और चुना हुआ है। किसी भी ऐप में टेक्स्ट बॉक्स पर टैप करें, फाइटर कीबोर्ड खुद आ जाएगा।</string>
+    <string name="status_enabled_only">कीबोर्ड चालू है पर अभी चुना नहीं गया। “2. कीबोर्ड चुनें” दबाकर फाइटर स्टडी कीबोर्ड चुनें।</string>
+    <string name="enable_hint">लिस्ट में फाइटर स्टडी कीबोर्ड ढूँढकर उसे ON करें</string>
+    <string name="preview_started">नीचे प्रीव्यू टाइपिंग चल रही है…</string>
+    <string name="status_disabled">कीबोर्ड अभी चालू नहीं है। “1. कीबोर्ड चालू करें” दबाएँ, फिर “2. कीबोर्ड चुनें” दबाएँ।</string>
+    <string name="player_status">%1$d/%2$d • %3$s</string>
+
+    <string name="speed_label">स्पीड</string>
+    <string name="speed_type_value">%1$d मि.से./शब्द</string>
+    <string name="speed_voice_value">%1$.1f× आवाज़</string>
+
+    <string name="key_del">मिटाएँ</string>
+    <string name="key_shift">शिफ्ट</string>
+    <string name="key_enter">एंटर</string>
+    <string name="key_symbols">?123</string>
+    <string name="key_letters">ABC</string>
+
+    <string name="notes_title">मेरे नोट्स</string>
+    <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
+    <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
+    <string name="add_note">+ नोट जोड़ें</string>
+    <string name="edit_note">नोट बदलें</string>
+    <string name="play_all">सभी प्ले</string>
+    <string name="play">प्ले</string>
+    <string name="edit">बदलें</string>
+    <string name="delete">हटाएँ</string>
+    <string name="save">सेव</string>
+    <string name="cancel">कैंसल</string>
+    <string name="close">बंद</string>
+    <string name="note_hint">अपना अध्ययन पाठ यहाँ लिखें या पेस्ट करें…</string>
+    <string name="note_empty">नोट खाली है</string>
+    <string name="note_meta">%1$d शब्द</string>
+    <string name="delete_note">नोट हटाएँ?</string>
+    <string name="delete_all">सभी हटाएँ</string>
+    <string name="delete_all_msg">इस फोन से सभी नोट्स हट जाएंगे।</string>
+    <string name="no_notes_hint">कोई नोट नहीं है। पहले नोट जोड़ें।</string>
+
+    <string name="export_notes">एक्सपोर्ट</string>
+    <string name="import_notes">इम्पोर्ट</string>
+    <string name="export_done">नोट्स क्लिपबोर्ड पर कॉपी हो गए। बैकअप के लिए कहीं पेस्ट कर लें।</string>
+    <string name="import_done">%1$d नोट्स इम्पोर्ट हुए</string>
+    <string name="import_failed">क्लिपबोर्ड में सही नोट्स नहीं मिले</string>
+    <string name="clipboard_empty">क्लिपबोर्ड खाली है</string>
+
+    <string name="btn_enable">1. कीबोर्ड चालू करें</string>
+    <string name="btn_pick">2. कीबोर्ड चुनें</string>
+    <string name="practice_hint">यहाँ अभ्यास करें…</string>
+    <string name="how_to_tip">टिप: कीबोर्ड में नोट्स खोलें → + नोट जोड़ें → पाठ पेस्ट करें → प्ले। स्पीड स्लाइडर कीज़ के ऊपर है।</string>
+
+    <string name="voice_unavailable">इस डिवाइस में आवाज़ इंजन नहीं है। टाइपिंग मोड चलेगा।</string>
+</resources>

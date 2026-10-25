@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fighter Study Keyboard</string>
+    <string name="app_title">Fighter Study Keyboard</string>
+    <string name="app_subtitle">Unlimited notes • auto play word by word • speed control</string>
+    <string name="ime_name">Fighter Study Keyboard</string>
+    <string name="subtype_english">English (Study)</string>
+    <string name="subtype_hindi">Hindi (Study)</string>
+
+    <!-- Toolbar -->
+    <string name="tb_notes">Notes</string>
+    <string name="tb_play">Play</string>
+    <string name="tb_pause">Pause</string>
+    <string name="tb_stop">Stop</string>
+    <string name="tb_loop">Loop</string>
+    <string name="tb_voice">Voice</string>
+    <string name="tb_more">More</string>
+    <string name="tb_notes_count">Notes %1$d</string>
+
+    <!-- Status -->
+    <string name="status_idle">Ready • %1$d notes • %2$d words</string>
+    <string name="status_paused">Paused • tap Pause to resume</string>
+    <string name="status_speaking">Speaking aloud…</string>
+    <string name="status_checking">Checking keyboard status…</string>
+    <string name="status_selected">Keyboard is ON and selected. Open any app, tap a text field and the Fighter keyboard will appear.</string>
+    <string name="status_enabled_only">Keyboard is enabled but not selected yet. Tap “2. Choose keyboard” and pick Fighter Study Keyboard.</string>
+    <string name="enable_hint">Find Fighter Study Keyboard in the list and turn it ON</string>
+    <string name="preview_started">Preview typing below…</string>
+    <string name="status_disabled">Keyboard is NOT enabled yet. Tap “1. Enable keyboard”, turn on Fighter Study Keyboard, then tap “2. Choose keyboard”.</string>
+    <string name="player_status">%1$d/%2$d • %3$s</string>
+
+    <!-- Speed -->
+    <string name="speed_label">Speed</string>
+    <string name="speed_type_value">%1$d ms/word</string>
+    <string name="speed_voice_value">%1$.1f× voice</string>
+
+    <!-- Keys -->
+    <string name="key_del">DEL</string>
+    <string name="key_shift">SHIFT</string>
+    <string name="key_enter">Enter</string>
+    <string name="key_symbols">?123</string>
+    <string name="key_letters">ABC</string>
+
+    <!-- Notes -->
+    <string name="notes_title">My notes</string>
+    <string name="notes_count_title">My notes (%1$d)</string>
+    <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>
+    <string name="add_note">+ Add note</string>
+    <string name="edit_note">Edit note</string>
+    <string name="play_all">Play all</string>
+    <string name="play">Play</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Del</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="note_hint">Paste or type your study note here…</string>
+    <string name="note_empty">Note is empty</string>
+    <string name="note_meta">%1$d words</string>
+    <string name="delete_note">Delete note?</string>
+    <string name="delete_all">Delete all</string>
+    <string name="delete_all_msg">All notes will be deleted from this phone.</string>
+    <string name="no_notes_hint">No notes yet. Add a note first.</string>
+
+    <!-- Import / export -->
+    <string name="export_notes">Export</string>
+    <string name="import_notes">Import</string>
+    <string name="export_done">Notes copied to clipboard. Paste them anywhere for backup.</string>
+    <string name="import_done">%1$d notes imported</string>
+    <string name="import_failed">Clipboard does not contain valid notes</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
+
+    <!-- Setup -->
+    <string name="btn_enable">1. Enable keyboard</string>
+    <string name="btn_pick">2. Choose keyboard</string>
+    <string name="practice_hint">Practice here…</string>
+    <string name="how_to_tip">Tip: open Notes in the keyboard → + Add note → paste text → Play. Speed slider is above the keys.</string>
+
+    <!-- Voice -->
+    <string name="voice_unavailable">Voice engine is not available on this device. Typing mode will be used.</string>
+</resources>

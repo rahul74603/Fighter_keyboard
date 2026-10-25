@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootKeyboard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/kb_bg"
+    android:orientation="vertical"
+    android:paddingBottom="4dp">
+
+    <!-- ================= Toolbar: notes / play controls ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp">
+
+        <TextView
+            android:id="@+id/btnNotes"
+            style="@style/ToolButtonWide"
+            android:text="@string/tb_notes" />
+
+        <TextView
+            android:id="@+id/btnPlay"
+            style="@style/ToolButtonWide"
+            android:text="@string/tb_play" />
+
+        <TextView
+            android:id="@+id/btnPause"
+            style="@style/ToolButton"
+            android:text="@string/tb_pause" />
+
+        <TextView
+            android:id="@+id/btnStop"
+            style="@style/ToolButton"
+            android:text="@string/tb_stop" />
+
+        <TextView
+            android:id="@+id/btnLoop"
+            style="@style/ToolButton"
+            android:text="@string/tb_loop" />
+
+        <TextView
+            android:id="@+id/btnVoice"
+            style="@style/ToolButton"
+            android:text="@string/tb_voice" />
+
+        <TextView
+            android:id="@+id/btnMore"
+            style="@style/ToolButton"
+            android:text="@string/tb_more" />
+    </LinearLayout>
+
+    <!-- ================= Status (progress / current word) ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/status_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="@string/status_idle"
+            android:textColor="@color/kb_text_dim"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvSpeedValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:textColor="@color/kb_accent"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- ================= Speed control ================= -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/speed_row_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="@string/speed_label"
+            android:textColor="@color/kb_text_dim"
+            android:textSize="11sp" />
+
+        <SeekBar
+            android:id="@+id/seekSpeed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
+    </LinearLayout>
+
+    <!-- ================= Word suggestions (built from your notes) ================= -->
+    <HorizontalScrollView
+        android:id="@+id/suggestionsScroll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/suggestion_height"
+        android:fillViewport="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/suggestionsBar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp" />
+    </HorizontalScrollView>
+
+    <!-- ================= Keys + notes panel ================= -->
+    <FrameLayout
+        android:id="@+id/frameMain"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/keyboard_area_height">
+
+        <LinearLayout
+            android:id="@+id/keyboardArea"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Letters page -->
+            <LinearLayout
+                android:id="@+id/lettersArea"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView style="@style/KeyView" android:tag="c:q" android:text="q" />
+                    <TextView style="@style/KeyView" android:tag="c:w" android:text="w" />
+                    <TextView style="@style/KeyView" android:tag="c:e" android:text="e" />
+                    <TextView style="@style/KeyView" android:tag="c:r" android:text="r" />
+                    <TextView style="@style/KeyView" android:tag="c:t" android:text="t" />
+                    <TextView style="@style/KeyView" android:tag="c:y" android:text="y" />
+                    <TextView style="@style/KeyView" android:tag="c:u" android:text="u" />
+                    <TextView style="@style/KeyView" android:tag="c:i" android:text="i" />
+                    <TextView style="@style/KeyView" android:tag="c:o" android:text="o" />
+                    <TextView style="@style/KeyView" android:tag="c:p" android:text="p" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView style="@style/KeyView" android:tag="c:a" android:text="a" />
+                    <TextView style="@style/KeyView" android:tag="c:s" android:text="s" />
+                    <TextView style="@style/KeyView" android:tag="c:d" android:text="d" />
+                    <TextView style="@style/KeyView" android:tag="c:f" android:text="f" />
+                    <TextView style="@style/KeyView" android:tag="c:g" android:text="g" />
+                    <TextView style="@style/KeyView" android:tag="c:h" android:text="h" />
+                    <TextView style="@style/KeyView" android:tag="c:j" android:text="j" />
+                    <TextView style="@style/KeyView" android:tag="c:k" android:text="k" />
+                    <TextView style="@style/KeyView" android:tag="c:l" android:text="l" />
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1.5"
+                        android:tag="key:del"
+                        android:text="@string/key_del" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnShift"
+                        style="@style/KeyShift"
+                        android:layout_weight="1.4"
+                        android:tag="key:shift"
+                        android:text="@string/key_shift" />
+
+                    <TextView style="@style/KeyView" android:tag="c:z" android:text="z" />
+                    <TextView style="@style/KeyView" android:tag="c:x" android:text="x" />
+                    <TextView style="@style/KeyView" android:tag="c:c" android:text="c" />
+                    <TextView style="@style/KeyView" android:tag="c:v" android:text="v" />
+                    <TextView style="@style/KeyView" android:tag="c:b" android:text="b" />
+                    <TextView style="@style/KeyView" android:tag="c:n" android:text="n" />
+                    <TextView style="@style/KeyView" android:tag="c:m" android:text="m" />
+                    <TextView style="@style/KeyView" android:tag="c:," android:text="," />
+                    <TextView style="@style/KeyView" android:tag="c:." android:text="." />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height_bottom"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1.5"
+                        android:tag="key:mode"
+                        android:text="@string/key_symbols" />
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1"
+                        android:tag="c:,"
+                        android:text="," />
+
+                    <TextView
+                        style="@style/KeyView"
+                        android:layout_weight="4.4"
+                        android:tag="key:space"
+                        android:text="" />
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1"
+                        android:tag="c:."
+                        android:text="." />
+
+                    <TextView
+                        style="@style/KeyShift"
+                        android:layout_weight="1.6"
+                        android:tag="key:enter"
+                        android:text="@string/key_enter" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Symbols page -->
+            <LinearLayout
+                android:id="@+id/symbolsArea"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView style="@style/KeyView" android:tag="c:1" android:text="1" />
+                    <TextView style="@style/KeyView" android:tag="c:2" android:text="2" />
+                    <TextView style="@style/KeyView" android:tag="c:3" android:text="3" />
+                    <TextView style="@style/KeyView" android:tag="c:4" android:text="4" />
+                    <TextView style="@style/KeyView" android:tag="c:5" android:text="5" />
+                    <TextView style="@style/KeyView" android:tag="c:6" android:text="6" />
+                    <TextView style="@style/KeyView" android:tag="c:7" android:text="7" />
+                    <TextView style="@style/KeyView" android:tag="c:8" android:text="8" />
+                    <TextView style="@style/KeyView" android:tag="c:9" android:text="9" />
+                    <TextView style="@style/KeyView" android:tag="c:0" android:text="0" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView style="@style/KeyView" android:tag="c:@" android:text="@" />
+                    <TextView style="@style/KeyView" android:tag="c:#" android:text="#" />
+                    <TextView style="@style/KeyView" android:tag="c:$" android:text="$" />
+                    <TextView style="@style/KeyView" android:tag="c:%" android:text="%" />
+                    <TextView style="@style/KeyView" android:tag="c:&amp;" android:text="&amp;" />
+                    <TextView style="@style/KeyView" android:tag="c:*" android:text="*" />
+                    <TextView style="@style/KeyView" android:tag="c:(" android:text="(" />
+                    <TextView style="@style/KeyView" android:tag="c:)" android:text=")" />
+                    <TextView style="@style/KeyView" android:tag="c:-" android:text="-" />
+                    <TextView style="@style/KeyView" android:tag="c:+" android:text="+" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height"
+                    android:orientation="horizontal">
+
+                    <TextView style="@style/KeyView" android:tag="c:=" android:text="=" />
+                    <TextView style="@style/KeyView" android:tag="c:/" android:text="/" />
+                    <TextView style="@style/KeyView" android:tag="c:&#92;" android:text="&#92;" />
+                    <TextView style="@style/KeyView" android:tag="c:'" android:text="'" />
+                    <TextView style="@style/KeyView" android:tag="c:&quot;" android:text="&quot;" />
+                    <TextView style="@style/KeyView" android:tag="c::" android:text=":" />
+                    <TextView style="@style/KeyView" android:tag="c:;" android:text=";" />
+                    <TextView style="@style/KeyView" android:tag="c:!" android:text="!" />
+                    <TextView style="@style/KeyView" android:tag="c:?" android:text="?" />
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1.5"
+                        android:tag="key:del"
+                        android:text="@string/key_del" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/key_row_height_bottom"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/KeyFunc"
+                        android:layout_weight="1.6"
+                        android:tag="key:letters"
+                        android:text="@string/key_letters" />
+
+                    <TextView
+                        style="@style/KeyView"
+                        android:layout_weight="0.9"
+                        android:tag="c:@"
+                        android:text="@" />
+
+                    <TextView
+                        style="@style/KeyView"
+                        android:layout_weight="4.4"
+                        android:tag="key:space"
+                        android:text="" />
+
+                    <TextView
+                        style="@style/KeyView"
+                        android:layout_weight="1"
+                        android:tag="c:."
+                        android:text="." />
+
+                    <TextView
+                        style="@style/KeyShift"
+                        android:layout_weight="1.6"
+                        android:tag="key:enter"
+                        android:text="@string/key_enter" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Notes panel: unlimited notes + add -->
+        <LinearLayout
+            android:id="@+id/notesPanel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/kb_panel"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:includeFontPadding="false"
+                    android:text="@string/notes_title"
+                    android:textColor="@color/kb_text"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnCloseNotes"
+                    style="@style/ToolButton"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="0"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="@string/close" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/kb_divider" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <ListView
+                    android:id="@+id/lvNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:divider="@null"
+                    android:dividerHeight="0dp"
+                    android:padding="6dp"
+                    android:scrollbars="vertical" />
+
+                <TextView
+                    android:id="@+id/tvEmptyHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="@string/notes_empty"
+                    android:textColor="@color/kb_text_dim"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:orientation="horizontal"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp">
+
+                <TextView
+                    android:id="@+id/btnAddNote"
+                    style="@style/PanelButton"
+                    android:layout_weight="2"
+                    android:text="@string/add_note" />
+
+                <TextView
+                    android:id="@+id/btnPlayAll"
+                    style="@style/PanelButton"
+                    android:layout_weight="1.6"
+                    android:text="@string/play_all" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

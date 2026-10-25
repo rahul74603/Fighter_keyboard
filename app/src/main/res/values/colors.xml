@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keyboard (dark) palette -->
+    <color name="kb_bg">#101319</color>
+    <color name="kb_panel">#171B23</color>
+    <color name="kb_key">#242936</color>
+    <color name="kb_key_pressed">#39415A</color>
+    <color name="kb_func">#1A1F29</color>
+    <color name="kb_func_pressed">#2A3140</color>
+    <color name="kb_text">#F2F5FA</color>
+    <color name="kb_text_dim">#98A2B8</color>
+    <color name="kb_accent">#7FB2FF</color>
+    <color name="kb_accent_soft">#1D3459</color>
+    <color name="kb_divider">#232833</color>
+    <color name="note_card_dark">#1E232E</color>
+    <color name="note_card_dark_stroke">#2B3140</color>
+
+    <!-- App (light) palette -->
+    <color name="app_bg">#F4F6FB</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_text">#131722</color>
+    <color name="app_text_dim">#5D6577</color>
+    <color name="app_accent">#2F6FEF</color>
+    <color name="app_accent_dark">#1F4FBF</color>
+    <color name="app_accent_soft">#EAF0FE</color>
+    <color name="app_stroke">#DFE4EE</color>
+    <color name="app_danger">#C0392B</color>
+</resources>
