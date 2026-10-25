@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -30,9 +30,23 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build debug APK
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+
+      # Errors are surfaced as check annotations so they can be read without logs.
+      - name: Report build errors
+        if: failure()
+        run: |
+          if [ -f build.log ]; then
+            grep -E "^(e: |w: ).*|error:|FAILURE:|What went wrong|Caused by|Execution failed|> Task .*FAILED" build.log | head -40 | while IFS= read -r line; do
+              safe=$(printf '%s' "$line" | sed -e 's/%/%25/g' | cut -c1-900)
+              echo "::error::$safe"
+            done
+          fi
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: fighter-study-keyboard-apk
