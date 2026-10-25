@@ -38,7 +38,7 @@
     <string name="key_del">DEL</string>
     <string name="key_shift">SHIFT</string>
     <string name="key_enter">Enter</string>
-    <string name="key_symbols">?123</string>
+    <string name="key_symbols">\?123</string>
     <string name="key_letters">ABC</string>
 
     <!-- Notes -->
