@@ -23,6 +23,7 @@ import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
 import com.fighter.studykeyboard.play.AutoSendService
+import com.fighter.studykeyboard.play.StudyPlaybackService
 import com.fighter.studykeyboard.play.TextTools
 import com.fighter.studykeyboard.ui.NotesAdapter
 
@@ -110,6 +111,10 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         findViewById<View>(R.id.btnStudyMode).setOnClickListener {
             stopPreview()
             startActivity(Intent(this, StudyActivity::class.java))
+        }
+        findViewById<View>(R.id.btnBackgroundPlay).setOnClickListener {
+            StudyPlaybackService.play(this, playAll = true)
+            toast(getString(R.string.background_started))
         }
         findViewById<View>(R.id.btnBrowser).setOnClickListener {
             startActivity(Intent(this, BrowserActivity::class.java))

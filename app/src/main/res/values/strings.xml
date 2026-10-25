@@ -92,6 +92,12 @@ phir yahan tap karke check karo</string>
     <string name="study_hint">Tip: screen off karke sun sakte ho (voice background me chalta hai), wapas on karne par wahi note dikhega.</string>
     <string name="study_panel">Study</string>
     <string name="study_background">Background me chalta rahega • notification se Stop kar sakte ho</string>
+    <string name="study_idle">Koi session nahi • Play dabao</string>
+    <string name="channel_study">Study playback</string>
+    <string name="channel_study_desc">Background me notes bolte rehte hain</string>
+    <string name="notif_study_ready">Study mode ready</string>
+    <string name="background_play">Background play (screen off)</string>
+    <string name="background_started">Background me chalu • screen lock kar sakte ho</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

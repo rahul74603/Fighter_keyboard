@@ -86,6 +86,12 @@
     <string name="study_hint">टिप: स्क्रीन बंद करके सुन सकते हैं (आवाज़ बैकग्राउंड में चलती है), वापस चालू करने पर वही नोट दिखेगा।</string>
     <string name="study_panel">स्टडी</string>
     <string name="study_background">बैकग्राउंड में चलता रहेगा • नोटिफिकेशन से रोक सकते हैं</string>
+    <string name="study_idle">कोई सेशन नहीं • प्ले दबाएँ</string>
+    <string name="channel_study">स्टडी प्लेबैक</string>
+    <string name="channel_study_desc">बैकग्राउंड में नोट्स बोलते रहते हैं</string>
+    <string name="notif_study_ready">स्टडी मोड तैयार</string>
+    <string name="background_play">बैकग्राउंड प्ले (स्क्रीन बंद)</string>
+    <string name="background_started">बैकग्राउंड में चालू • स्क्रीन लॉक कर सकते हैं</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

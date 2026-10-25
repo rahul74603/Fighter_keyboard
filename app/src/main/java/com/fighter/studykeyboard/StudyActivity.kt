@@ -2,41 +2,35 @@ package com.fighter.studykeyboard
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
 import android.text.style.StyleSpan
-import android.graphics.Typeface
 import android.view.View
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
-import com.fighter.studykeyboard.play.PlaybackService
-import com.fighter.studykeyboard.play.SpeechSpeaker
-import com.fighter.studykeyboard.play.TextTools
+import com.fighter.studykeyboard.play.PlaybackBridge
+import com.fighter.studykeyboard.play.StudyPlaybackService
 
 /**
- * Study / test mode ("aankh band karke suno, phir kholke check karo").
+ * Study / test mode screen - a *controller* only.
  *
- *  - reads the notes aloud (Hinglish/Hindi notes included)
- *  - the text is on screen and the word being spoken is highlighted
- *  - "Hide text" ke saath self test: pehle sirf suno, tap karke answer dekho
- *  - auto-next, shuffle, speed slider, keep-screen-on
- *  - screen off / phone lock hone par bhi voice chalti rehti hai (foreground service)
+ * All the playback (queue + text-to-speech) runs inside [StudyPlaybackService],
+ * so notes keep playing when this screen is closed, the app is minimised, the
+ * phone is locked or the screen is off. This screen just shows what is playing,
+ * highlights the word being spoken and sends play/pause/next/prev commands.
  */
-class StudyActivity : Activity(), SpeechSpeaker.Listener {
+class StudyActivity : Activity(), PlaybackBridge.Listener {
 
     private lateinit var store: NoteStore
     private lateinit var prefs: PlayerPrefs
-    private lateinit var speaker: SpeechSpeaker
 
     private lateinit var tvProgress: TextView
     private lateinit var tvNote: TextView
@@ -50,15 +44,10 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
     private lateinit var btnScreen: TextView
     private lateinit var revealOverlay: View
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val notes = ArrayList<Note>()
-
-    private var index = 0
-    private var playing = false
     private var hiddenForTest = false
     private var revealed = false
-    private var currentText = ""
     private var keepScreenOn = true
+    private var lastState: PlaybackBridge.State = PlaybackBridge.State()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,8 +55,6 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
 
         store = NoteStore.get(this)
         prefs = PlayerPrefs(this)
-        speaker = SpeechSpeaker(this)
-        speaker.listener = this
 
         tvProgress = findViewById(R.id.tvStudyProgress)
         tvNote = findViewById(R.id.tvStudyNote)
@@ -81,13 +68,14 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
         btnScreen = findViewById(R.id.btnStudyScreen)
         revealOverlay = findViewById(R.id.revealOverlay)
 
-        notes.addAll(loadOrderedNotes())
-        if (notes.isEmpty()) {
+        if (store.all().isEmpty()) {
             Toast.makeText(this, getString(R.string.no_notes_hint), Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
             return
         }
+
+        ensureNotificationPermission()
 
         seekSpeed.max = 100
         seekSpeed.progress = prefs.speedProgress
@@ -100,22 +88,43 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
 
             override fun onStartTrackingTouch(bar: SeekBar?) = Unit
 
-            override fun onStopTrackingTouch(bar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(bar: SeekBar?) {
+                StudyPlaybackService.command(this@StudyActivity, StudyPlaybackService.ACTION_SPEED)
+            }
         })
 
-        findViewById<View>(R.id.btnStudyPrev).setOnClickListener { move(-1) }
-        findViewById<View>(R.id.btnStudyNext).setOnClickListener { move(1) }
-        findViewById<View>(R.id.btnStudyRepeat).setOnClickListener { speakCurrent(reveal = false) }
-        findViewById<View>(R.id.btnStudyClose).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnStudyPrev).setOnClickListener {
+            revealed = !hiddenForTest
+            StudyPlaybackService.command(this, StudyPlaybackService.ACTION_PREV)
+        }
+        findViewById<View>(R.id.btnStudyNext).setOnClickListener {
+            revealed = !hiddenForTest
+            StudyPlaybackService.command(this, StudyPlaybackService.ACTION_NEXT)
+        }
+        findViewById<View>(R.id.btnStudyRepeat).setOnClickListener {
+            revealed = !hiddenForTest
+            StudyPlaybackService.command(this, StudyPlaybackService.ACTION_REPEAT)
+        }
+        findViewById<View>(R.id.btnStudyClose).setOnClickListener {
+            StudyPlaybackService.command(this, StudyPlaybackService.ACTION_STOP)
+            finish()
+        }
         revealOverlay.setOnClickListener { revealText() }
         tvNote.setOnClickListener { revealText() }
 
-        btnPlay.setOnClickListener { if (playing) pausePlayback() else speakCurrent(reveal = false) }
+        btnPlay.setOnClickListener {
+            val state = PlaybackBridge.state
+            when {
+                !state.hasSession -> playAll()
+                state.playing -> StudyPlaybackService.command(this, StudyPlaybackService.ACTION_PAUSE)
+                else -> StudyPlaybackService.command(this, StudyPlaybackService.ACTION_RESUME)
+            }
+        }
         btnHide.setOnClickListener {
             hiddenForTest = !hiddenForTest
             revealed = false
             updateToggles()
-            renderNote()
+            render(lastState)
         }
         btnAuto.setOnClickListener {
             prefs.studyAutoNext = !prefs.studyAutoNext
@@ -136,109 +145,112 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
             updateToggles()
         }
 
-        ensureNotificationPermission()
         updateSpeedLabel()
         updateToggles()
         applyKeepScreenOn()
-        renderNote()
-        // Start reading shortly after opening, so the screen is ready.
-        handler.postDelayed({ speakCurrent(reveal = false) }, 450L)
     }
 
-    private fun loadOrderedNotes(): List<Note> {
-        val all = store.all()
-        val startId = prefs.lastNoteId
-        val ordered = if (prefs.shuffle) all.shuffled() else all
-        if (startId == null) return ordered
-        val startIndex = ordered.indexOfFirst { it.id == startId }
-        if (startIndex <= 0) return ordered
-        // Continue from the note that the keyboard played last.
-        return ordered.drop(startIndex) + ordered.take(startIndex)
+    private fun playAll() {
+        revealed = !hiddenForTest
+        StudyPlaybackService.play(this, playAll = true)
     }
 
-    // ------------------------------------------------------------------ playback
-
-    private fun speakCurrent(reveal: Boolean) {
-        if (notes.isEmpty()) return
-        val note = notes[index.coerceIn(0, notes.size - 1)]
-        currentText = if (prefs.capsMode) TextTools.capsText(note.text) else note.text
-        prefs.lastNoteId = note.id
-        playing = true
-        if (reveal) revealed = true else revealed = !hiddenForTest
-        renderNote()
-        updateControls()
-
-        PlaybackService.stopRequested = { finishSession() }
-        PlaybackService.start(this, statusLine(), PlaybackService.MODE_VOICE)
-        speaker.start(currentText, prefs.speechRate, false)
-        tvStatus.text = getString(R.string.study_listening)
-    }
-
-    private fun pausePlayback() {
-        playing = false
-        speaker.stop()
-        PlaybackService.update(this, getString(R.string.study_paused), PlaybackService.MODE_VOICE)
-        tvStatus.text = getString(R.string.study_paused)
-        updateControls()
-    }
-
-    private fun finishSession() {
-        playing = false
-        speaker.stop()
-        PlaybackService.stop(this)
-        PlaybackService.stopRequested = null
-        finish()
-    }
-
-    private fun move(direction: Int) {
-        if (notes.isEmpty()) return
-        speaker.stop()
-        index = (index + direction + notes.size) % notes.size
-        if (playing) speakCurrent(reveal = false) else {
-            revealed = !hiddenForTest
-            renderNote()
+    override fun onStart() {
+        super.onStart()
+        PlaybackBridge.register(this)
+        val state = PlaybackBridge.state
+        if (!state.hasSession) {
+            // Opening this screen starts (or continues) the background session.
+            playAll()
+        } else {
+            render(state)
         }
     }
 
-    private fun advance() {
-        if (notes.size <= 1) {
-            speakCurrent(reveal = false)
-            return
-        }
-        index = (index + 1) % notes.size
-        if (prefs.shuffle && index == 0) notes.shuffle()
-        speakCurrent(reveal = false)
+    override fun onStop() {
+        PlaybackBridge.unregister(this)
+        super.onStop()
     }
 
-    // ------------------------------------------------------------------ ui
+    override fun onResume() {
+        super.onResume()
+        applyKeepScreenOn()
+    }
 
-    private fun renderNote() {
-        if (notes.isEmpty()) return
-        val note = notes[index.coerceIn(0, notes.size - 1)]
-        val text = if (prefs.capsMode) TextTools.capsText(note.text) else note.text
-        currentText = text
-        tvProgress.text = getString(
-            R.string.study_progress,
-            index + 1,
-            notes.size,
-            TextTools.words(text).size
-        )
+    /**
+     * Back = app background me (session band nahi hota), taaki padhai chalti rahe.
+     * Band karna ho to ✕ ya notification ka Stop.
+     */
+    @Deprecated("Handled explicitly so background playback survives")
+    override fun onBackPressed() {
+        val state = PlaybackBridge.state
+        if (state.hasSession && (state.playing || state.paused)) {
+            moveTaskToBack(true)
+            Toast.makeText(this, getString(R.string.study_background), Toast.LENGTH_SHORT).show()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    // ------------------------------------------------------------------ rendering
+
+    override fun onPlaybackState(state: PlaybackBridge.State) {
+        lastState = state
+        render(state)
+    }
+
+    private fun render(state: PlaybackBridge.State) {
+        tvProgress.text = if (state.hasSession) {
+            getString(
+                R.string.study_progress,
+                state.noteIndex + 1,
+                state.noteCount,
+                com.fighter.studykeyboard.play.TextTools.words(state.text).size
+            )
+        } else {
+            getString(R.string.study_idle)
+        }
 
         val hide = hiddenForTest && !revealed
         revealOverlay.visibility = if (hide) View.VISIBLE else View.GONE
-        tvNote.text = text
+        if (!hide) {
+            tvNote.text = state.text
+            if (state.highlightEnd > state.highlightStart) {
+                highlight(state.text, state.highlightStart, state.highlightEnd)
+            }
+        }
+        tvStatus.text = state.status
+        btnPlay.text = getString(if (state.playing) R.string.tb_pause else R.string.tb_play)
+        btnPlay.isSelected = state.playing
+    }
+
+    private fun highlight(text: String, start: Int, end: Int) {
+        if (text.isEmpty()) return
+        val safeStart = start.coerceIn(0, text.length)
+        val safeEnd = end.coerceIn(safeStart, text.length)
+        if (safeEnd <= safeStart) return
+        val spannable = SpannableString(text)
+        spannable.setSpan(
+            BackgroundColorSpan(HIGHLIGHT_COLOR),
+            safeStart,
+            safeEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannable.setSpan(
+            StyleSpan(Typeface.BOLD),
+            safeStart,
+            safeEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        tvNote.text = spannable
     }
 
     private fun revealText() {
         if (!hiddenForTest || revealed) return
         revealed = true
         revealOverlay.visibility = View.GONE
+        render(lastState)
         tvStatus.text = getString(R.string.study_check)
-    }
-
-    private fun updateControls() {
-        btnPlay.text = getString(if (playing) R.string.tb_pause else R.string.tb_play)
-        btnPlay.isSelected = playing
     }
 
     private fun updateToggles() {
@@ -260,90 +272,6 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
         }
     }
 
-    private fun statusLine(): String = getString(R.string.notif_study, index + 1, notes.size)
-
-    private fun highlight(start: Int, end: Int) {
-        if (currentText.isEmpty()) return
-        val safeStart = start.coerceIn(0, currentText.length)
-        val safeEnd = end.coerceIn(safeStart, currentText.length)
-        if (safeEnd <= safeStart) return
-        val spannable = SpannableString(currentText)
-        spannable.setSpan(
-            BackgroundColorSpan(HIGHLIGHT_COLOR),
-            safeStart,
-            safeEnd,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        spannable.setSpan(
-            StyleSpan(Typeface.BOLD),
-            safeStart,
-            safeEnd,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        tvNote.text = spannable
-    }
-
-    // ------------------------------------------------------------------ speaker callbacks
-
-    override fun onSpeechStarted(charCount: Int) {
-        playing = true
-        updateControls()
-        renderNote()
-        tvStatus.text = getString(R.string.study_listening)
-    }
-
-    override fun onSpeechRange(start: Int, end: Int) {
-        highlight(start, end)
-    }
-
-    override fun onSpeechDone() {
-        if (!playing) return
-        PlaybackService.update(this, statusLine(), PlaybackService.MODE_VOICE)
-        tvStatus.text = getString(R.string.study_check)
-        if (hiddenForTest && !revealed) {
-            // Let the student think, then tap to check.
-            return
-        }
-        if (prefs.studyAutoNext && notes.size > 1) {
-            handler.postDelayed({ if (playing) advance() }, AUTO_NEXT_DELAY_MS)
-        } else {
-            playing = false
-            updateControls()
-        }
-    }
-
-    override fun onSpeechUnavailable(reason: String) {
-        playing = false
-        updateControls()
-        tvStatus.text = getString(R.string.voice_unavailable)
-        Toast.makeText(this, getString(R.string.voice_unavailable), Toast.LENGTH_LONG).show()
-    }
-
-    override fun onSpeechStateChanged() = Unit
-
-    // ------------------------------------------------------------------ lifecycle
-
-    override fun onResume() {
-        super.onResume()
-        applyKeepScreenOn()
-        // Session still running while we were in background? Keep the UI in sync.
-        if (playing) updateControls()
-    }
-
-    /**
-     * Back = app ko background me bhej do (finish mat karo), taaki voice chalti rahe.
-     * Session band karna ho to ✕ (Close) ya notification ka Stop dabao.
-     */
-    @Deprecated("Handled explicitly so playback survives going to the background")
-    override fun onBackPressed() {
-        if (playing) {
-            moveTaskToBack(true)
-            Toast.makeText(this, getString(R.string.study_background), Toast.LENGTH_SHORT).show()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     private fun ensureNotificationPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
@@ -354,17 +282,7 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
         requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
     }
 
-    override fun onDestroy() {
-        handler.removeCallbacksAndMessages(null)
-        speaker.stop()
-        speaker.shutdown()
-        PlaybackService.stop(this)
-        PlaybackService.stopRequested = null
-        super.onDestroy()
-    }
-
     private companion object {
-        const val AUTO_NEXT_DELAY_MS = 1500L
         const val HIGHLIGHT_COLOR = 0x807FB2FF.toInt()
     }
 }

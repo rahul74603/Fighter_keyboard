@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v1.7.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v1.8.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -79,7 +79,17 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
 
-## Study / Test mode (naya)
+## Full background playback (v1.8)
+
+Poora playback engine ab **service ke andar** hai (`StudyPlaybackService`), screen ke andar nahi:
+
+- App minimise / back / screen off / phone lock — **chalta rehta hai**.
+- Notification me **⏮ Prev · ⏯ Play-Pause · ⏭ Next · ✕ Stop** — phone lock screen se bhi control.
+- **Wake lock** (2 ghante tak renew hota hai) taaki Doze mode me playback na ruke.
+- App me **“Background play (screen off)”** button — ek tap, phir phone pocket me.
+- Study mode screen sirf controller hai: band kar do, playback chalta rahega; wapas kholne par wahi note + progress.
+
+## Study / Test mode
 
 App me bada button **“Study / Test mode (voice)”** (keyboard ke Notes panel me bhi `Study`):
 
