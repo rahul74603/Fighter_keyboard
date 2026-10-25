@@ -42,6 +42,7 @@
     <string name="key_letters">ABC</string>
 
     <!-- Notes -->
+    <string name="letter_by_letter">Letter by letter</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>
@@ -57,6 +58,7 @@
     <string name="note_hint">Paste or type your study note here…</string>
     <string name="note_empty">Note is empty</string>
     <string name="note_meta">%1$d words</string>
+    <string name="note_deleted">Note deleted</string>
     <string name="delete_note">Delete note?</string>
     <string name="delete_all">Delete all</string>
     <string name="delete_all_msg">All notes will be deleted from this phone.</string>

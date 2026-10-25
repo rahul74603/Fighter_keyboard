@@ -26,6 +26,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".NoteEditActivity"
+            android:exported="false"
+            android:label="@string/add_note"
+            android:theme="@style/Theme.FighterKeyboard.Dialog"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+
         <service
             android:name=".FighterKeyboardService"
             android:exported="true"

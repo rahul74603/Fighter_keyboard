@@ -10,14 +10,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.text.InputType
 import android.view.ContextThemeWrapper
-import android.view.Gravity
+import android.widget.EditText
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.ListView
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import com.fighter.studykeyboard.data.Note
@@ -41,6 +39,11 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private lateinit var tvEmpty: TextView
     private lateinit var lvNotes: ListView
     private lateinit var etPractice: EditText
+    private lateinit var seekSpeed: SeekBar
+    private lateinit var tvSpeedValue: TextView
+    private lateinit var tgLoop: TextView
+    private lateinit var tgVoice: TextView
+    private lateinit var tgLetters: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private var previewWords: List<String> = emptyList()
@@ -73,6 +76,12 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         lvNotes = findViewById(R.id.lvNotes)
         etPractice = findViewById(R.id.etPractice)
 
+        seekSpeed = findViewById(R.id.seekSpeed)
+        tvSpeedValue = findViewById(R.id.tvSpeedValue)
+        tgLoop = findViewById(R.id.tgLoop)
+        tgVoice = findViewById(R.id.tgVoice)
+        tgLetters = findViewById(R.id.tgLetters)
+
         adapter = NotesAdapter(R.layout.item_note, this)
         lvNotes.adapter = adapter
 
@@ -88,10 +97,53 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showInputMethodPicker()
         }
-        findViewById<View>(R.id.btnAddNote).setOnClickListener { showNoteDialog(null) }
+        findViewById<View>(R.id.btnAddNote).setOnClickListener { openNoteEditor(null) }
         findViewById<View>(R.id.btnExport).setOnClickListener { exportNotes() }
         findViewById<View>(R.id.btnImport).setOnClickListener { importNotes() }
         findViewById<View>(R.id.btnDeleteAll).setOnClickListener { confirmDeleteAll() }
+
+        seekSpeed.max = 100
+        seekSpeed.progress = prefs.speedProgress
+        seekSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                prefs.speedProgress = progress
+                updateSpeedLabel()
+            }
+
+            override fun onStartTrackingTouch(bar: SeekBar?) = Unit
+
+            override fun onStopTrackingTouch(bar: SeekBar?) = Unit
+        })
+        tgLoop.setOnClickListener {
+            prefs.loop = !prefs.loop
+            updateToggles()
+        }
+        tgVoice.setOnClickListener {
+            prefs.voiceEnabled = !prefs.voiceEnabled
+            updateToggles()
+            updateSpeedLabel()
+        }
+        tgLetters.setOnClickListener {
+            prefs.letterByLetter = !prefs.letterByLetter
+            updateToggles()
+        }
+        updateToggles()
+        updateSpeedLabel()
+    }
+
+    private fun updateToggles() {
+        tgLoop.isSelected = prefs.loop
+        tgVoice.isSelected = prefs.voiceEnabled
+        tgLetters.isSelected = prefs.letterByLetter
+    }
+
+    private fun updateSpeedLabel() {
+        tvSpeedValue.text = if (prefs.voiceEnabled) {
+            getString(R.string.speed_voice_value, prefs.speechRate)
+        } else {
+            getString(R.string.speed_type_value, prefs.wordDelayMs)
+        }
     }
 
     override fun onResume() {
@@ -111,6 +163,9 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tvNotesTitle.text = getString(R.string.notes_count_title, notes.size)
         tvEmpty.visibility = if (notes.isEmpty()) View.VISIBLE else View.GONE
         lvNotes.visibility = if (notes.isEmpty()) View.GONE else View.VISIBLE
+        seekSpeed.progress = prefs.speedProgress
+        updateToggles()
+        updateSpeedLabel()
         updateStatus()
     }
 
@@ -150,7 +205,12 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     }
 
     override fun onEdit(note: Note) {
-        showNoteDialog(note)
+        openNoteEditor(note.id)
+    }
+
+    private fun openNoteEditor(noteId: String?) {
+        stopPreview()
+        startActivity(NoteEditActivity.intentFor(this, noteId))
     }
 
     override fun onDelete(note: Note) {
@@ -170,45 +230,6 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private fun stopPreview() {
         previewRunning = false
         handler.removeCallbacks(previewStep)
-    }
-
-    private fun showNoteDialog(existing: Note?) {
-        val themed = ContextThemeWrapper(this, android.R.style.Theme_Material_Light_Dialog_Alert)
-        val edit = EditText(themed).apply {
-            setText(existing?.text ?: "")
-            hint = getString(R.string.note_hint)
-            textSize = 15f
-            minLines = 6
-            maxLines = 12
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            gravity = Gravity.TOP or Gravity.START
-            setPadding(dp(10), dp(10), dp(10), dp(10))
-            setSelection(text.length)
-        }
-        val container = FrameLayout(themed).apply {
-            setPadding(dp(18), dp(6), dp(18), dp(0))
-            addView(
-                edit,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
-        AlertDialog.Builder(themed)
-            .setTitle(if (existing == null) R.string.add_note else R.string.edit_note)
-            .setView(container)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val text = edit.text.toString()
-                if (text.isBlank()) {
-                    toast(getString(R.string.note_empty))
-                } else {
-                    if (existing == null) store.add(text) else store.update(existing.id, text)
-                    refresh()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
     }
 
     private fun confirmDeleteAll() {

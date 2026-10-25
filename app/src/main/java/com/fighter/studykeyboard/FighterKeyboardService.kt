@@ -1,20 +1,15 @@
 package com.fighter.studykeyboard
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.text.InputType
-import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ListView
@@ -199,7 +194,7 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun wireNotesPanel(view: View) {
         view.findViewById<View>(R.id.btnCloseNotes)?.setOnClickListener { openNotesPanel(false) }
-        view.findViewById<View>(R.id.btnAddNote)?.setOnClickListener { showNoteDialog(null) }
+        view.findViewById<View>(R.id.btnAddNote)?.setOnClickListener { openNoteEditor(null) }
         view.findViewById<View>(R.id.btnPlayAll)?.setOnClickListener { startPlayback(playAll = true) }
     }
 
@@ -607,70 +602,23 @@ class FighterKeyboardService : InputMethodService(),
     }
 
     override fun onEdit(note: Note) {
-        showNoteDialog(note)
+        openNoteEditor(note.id)
     }
 
     override fun onDelete(note: Note) {
-        confirmDelete(note)
-    }
-
-    private fun showNoteDialog(existing: Note?) {
-        stopPlayback()
-        val themed = ContextThemeWrapper(this, android.R.style.Theme_Material_Dialog_Alert)
-        val edit = EditText(themed).apply {
-            setText(existing?.text ?: "")
-            hint = getString(R.string.note_hint)
-            textSize = 15f
-            minLines = 6
-            maxLines = 12
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            gravity = Gravity.TOP or Gravity.START
-            setPadding(dp(10), dp(10), dp(10), dp(10))
-            setSelection(text.length)
-        }
-        val container = FrameLayout(themed).apply {
-            setPadding(dp(18), dp(6), dp(18), dp(0))
-            addView(
-                edit,
-                FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            )
-        }
-        AlertDialog.Builder(themed)
-            .setTitle(if (existing == null) R.string.add_note else R.string.edit_note)
-            .setView(container)
-            .setPositiveButton(R.string.save) { _, _ -> saveNote(existing?.id, edit.text.toString()) }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun saveNote(id: String?, text: String) {
-        if (text.isBlank()) {
-            toast(getString(R.string.note_empty))
-            return
-        }
-        if (id == null) store.add(text) else store.update(id, text)
+        store.delete(note.id)
+        if (prefs.lastNoteId == note.id) prefs.lastNoteId = null
         refreshDictionary()
         refreshNotes()
         updateToolbar()
+        toast(getString(R.string.note_deleted))
     }
 
-    private fun confirmDelete(note: Note) {
-        val themed = ContextThemeWrapper(this, android.R.style.Theme_Material_Dialog_Alert)
-        AlertDialog.Builder(themed)
-            .setTitle(R.string.delete_note)
-            .setMessage(note.preview(140))
-            .setPositiveButton(R.string.delete) { _, _ ->
-                store.delete(note.id)
-                if (prefs.lastNoteId == note.id) prefs.lastNoteId = null
-                refreshDictionary()
-                refreshNotes()
-                updateToolbar()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+    private fun openNoteEditor(noteId: String?) {
+        stopPlayback()
+        val intent = NoteEditActivity.intentFor(this, noteId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     // ------------------------------------------------------------------ helpers

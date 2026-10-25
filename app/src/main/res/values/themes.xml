@@ -8,4 +8,12 @@
         <item name="android:statusBarColor">@color/app_accent_dark</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
+
+    <style name="Theme.FighterKeyboard.Dialog" parent="@android:style/Theme.Material.Light.Dialog">
+        <item name="android:windowBackground">@color/app_surface</item>
+        <item name="android:colorAccent">@color/app_accent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowMinWidthMajor">92%</item>
+        <item name="android:windowMinWidthMinor">92%</item>
+    </style>
 </resources>

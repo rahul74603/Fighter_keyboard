@@ -47,7 +47,8 @@ Notes panel: har note ke saath **Play / Edit / Del** buttons. `Play all` = sabhi
 
 ```
 app/src/main/java/com/fighter/studykeyboard/
-├── MainActivity.kt              # setup + note manager + preview
+├── MainActivity.kt              # setup + note manager + speed/loop/voice settings
+├── NoteEditActivity.kt          # note add/edit screen (dialog style)
 ├── FighterKeyboardService.kt    # InputMethodService = asli keyboard + player controls
 ├── data/
 │   ├── Note.kt                  # ek note ka model (JSON)

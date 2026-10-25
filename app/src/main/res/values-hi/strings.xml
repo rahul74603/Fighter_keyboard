@@ -36,6 +36,7 @@
     <string name="key_symbols">\?123</string>
     <string name="key_letters">ABC</string>
 
+    <string name="letter_by_letter">अक्षर-दर-अक्षर</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
@@ -51,6 +52,7 @@
     <string name="note_hint">अपना अध्ययन पाठ यहाँ लिखें या पेस्ट करें…</string>
     <string name="note_empty">नोट खाली है</string>
     <string name="note_meta">%1$d शब्द</string>
+    <string name="note_deleted">नोट हट गया</string>
     <string name="delete_note">नोट हटाएँ?</string>
     <string name="delete_all">सभी हटाएँ</string>
     <string name="delete_all_msg">इस फोन से सभी नोट्स हट जाएंगे।</string>
