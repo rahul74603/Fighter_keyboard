@@ -52,7 +52,11 @@
     <string name="close">बंद</string>
     <string name="note_hint">अपना अध्ययन पाठ यहाँ लिखें या पेस्ट करें…</string>
     <string name="note_empty">नोट खाली है</string>
-    <string name="note_meta">%1$d शब्द</string>
+    <string name="paste">पेस्ट</string>
+    <plurals name="note_word_count">
+        <item quantity="one">%1$d शब्द</item>
+        <item quantity="other">%1$d शब्द</item>
+    </plurals>
     <string name="note_deleted">नोट हट गया</string>
     <string name="delete_note">नोट हटाएँ?</string>
     <string name="delete_all">सभी हटाएँ</string>

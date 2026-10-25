@@ -31,7 +31,6 @@ class NoteEditActivity : Activity() {
     private lateinit var btnDelete: View
 
     private var noteId: String? = null
-    private var startedWithText = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +48,11 @@ class NoteEditActivity : Activity() {
 
         noteId = intent.getStringExtra(EXTRA_NOTE_ID)
         val existing = noteId?.let { store.get(it) }
-        startedWithText = existing?.text ?: ""
-        etNote.setText(startedWithText)
+        // New note = completely blank field. Only an edited note is pre-filled.
+        etNote.setText(existing?.text.orEmpty())
         etNote.setSelection(etNote.text.length)
         tvTitle.text = getString(if (existing == null) R.string.add_note else R.string.edit_note)
         btnDelete.visibility = if (existing == null) View.GONE else View.VISIBLE
-
-        if (startedWithText.isEmpty()) pasteClipboardIfUseful()
 
         etNote.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -66,6 +63,7 @@ class NoteEditActivity : Activity() {
         })
         updateWordCount()
 
+        findViewById<View>(R.id.btnPaste).setOnClickListener { pasteFromClipboard() }
         findViewById<View>(R.id.btnSave).setOnClickListener { save() }
         findViewById<View>(R.id.btnCancel).setOnClickListener { finish() }
         btnDelete.setOnClickListener { deleteNote() }
@@ -73,23 +71,32 @@ class NoteEditActivity : Activity() {
         etNote.requestFocus()
     }
 
-    /** If the clipboard already holds a longer text, offer it straight away. */
-    private fun pasteClipboardIfUseful() {
-        try {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = clipboard.primaryClip
-            if (clip != null && clip.itemCount > 0) {
-                val text = clip.getItemAt(0).coerceToText(this)?.toString().orEmpty()
-                if (text.length > 20) etNote.setText(text)
-            }
-        } catch (error: Exception) {
-            // Clipboard can be blocked in the background, ignore.
+    /** Paste button: only pastes when the user asks for it. */
+    private fun pasteFromClipboard() {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = clipboard.primaryClip
+        val text = if (clip != null && clip.itemCount > 0) {
+            clip.getItemAt(0).coerceToText(this)?.toString().orEmpty()
+        } else {
+            ""
         }
+        if (text.isBlank()) {
+            Toast.makeText(this, getString(R.string.clipboard_empty), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val current = etNote.text.toString()
+        if (current.isBlank()) {
+            etNote.setText(text)
+        } else {
+            val separator = if (current.endsWith(" ") || current.endsWith("\n")) "" else " "
+            etNote.append(separator + text)
+        }
+        etNote.setSelection(etNote.text.length)
     }
 
     private fun updateWordCount() {
         val words = TextTools.words(etNote.text.toString()).size
-        tvWordCount.text = getString(R.string.note_meta, words)
+        tvWordCount.text = resources.getQuantityString(R.plurals.note_word_count, words, words)
     }
 
     private fun save() {

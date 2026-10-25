@@ -44,8 +44,9 @@ class NotesAdapter(
             ?: LayoutInflater.from(parent.context).inflate(itemLayout, parent, false)
         val note = items[position]
         view.findViewById<TextView>(R.id.tvPreview).text = note.preview()
+        val words = note.wordCount
         view.findViewById<TextView>(R.id.tvMeta).text =
-            parent.context.getString(R.string.note_meta, note.wordCount)
+            parent.context.resources.getQuantityString(R.plurals.note_word_count, words, words)
         view.findViewById<View>(R.id.btnPlayNote).setOnClickListener { callback.onPlay(note) }
         view.findViewById<View>(R.id.btnEditNote).setOnClickListener { callback.onEdit(note) }
         view.findViewById<View>(R.id.btnDeleteNote).setOnClickListener { callback.onDelete(note) }

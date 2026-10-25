@@ -9,6 +9,7 @@ Ek Android keyboard jo **padhai (study)** ke liye bana hai:
 - **Voice mode (optional)** — phone ki text-to-speech se note bologe bhi, aur saath-saath type bhi hota rahega (Android 8+).
 - **Suggestion strip** — aapke hi notes ke words se suggestions.
 - **Letter by letter** — chaho to word ke bajaye akshar-akshar typing effect (app settings me toggle).
+- **Paste button** — naya note kholne pe field **blank** aata hai; clipboard se paste karna ho to `Paste` dabao (auto-fill nahi hota).
 - **Import / Export** — notes ka backup clipboard se.
 
 Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
@@ -19,7 +20,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v1.1.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v1.2.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
