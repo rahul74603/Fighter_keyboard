@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -44,6 +45,9 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private lateinit var tgLoop: TextView
     private lateinit var tgVoice: TextView
     private lateinit var tgLetters: TextView
+    private lateinit var tgCaps: TextView
+    private lateinit var tgAutoSend: TextView
+    private lateinit var tgShuffle: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private var previewWords: List<String> = emptyList()
@@ -81,6 +85,9 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgLoop = findViewById(R.id.tgLoop)
         tgVoice = findViewById(R.id.tgVoice)
         tgLetters = findViewById(R.id.tgLetters)
+        tgCaps = findViewById(R.id.tgCaps)
+        tgAutoSend = findViewById(R.id.tgAutoSend)
+        tgShuffle = findViewById(R.id.tgShuffle)
 
         adapter = NotesAdapter(R.layout.item_note, this)
         lvNotes.adapter = adapter
@@ -128,6 +135,21 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             prefs.letterByLetter = !prefs.letterByLetter
             updateToggles()
         }
+        tgCaps.setOnClickListener {
+            prefs.capsMode = !prefs.capsMode
+            updateToggles()
+            toast(getString(if (prefs.capsMode) R.string.caps_on else R.string.caps_off))
+        }
+        tgAutoSend.setOnClickListener {
+            prefs.autoSend = !prefs.autoSend
+            updateToggles()
+            toast(getString(if (prefs.autoSend) R.string.auto_send_on else R.string.auto_send_off))
+        }
+        tgShuffle.setOnClickListener {
+            prefs.shuffle = !prefs.shuffle
+            updateToggles()
+            toast(getString(if (prefs.shuffle) R.string.shuffle_on else R.string.shuffle_off))
+        }
         updateToggles()
         updateSpeedLabel()
     }
@@ -136,6 +158,20 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgLoop.isSelected = prefs.loop
         tgVoice.isSelected = prefs.voiceEnabled
         tgLetters.isSelected = prefs.letterByLetter
+        tgCaps.isSelected = prefs.capsMode
+        tgAutoSend.isSelected = prefs.autoSend
+        tgShuffle.isSelected = prefs.shuffle
+    }
+
+    /** Android 13+ needs a runtime permission for the playback notification. */
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIF)
     }
 
     private fun updateSpeedLabel() {
@@ -148,6 +184,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
 
     override fun onResume() {
         super.onResume()
+        askNotificationPermission()
         refresh()
     }
 
@@ -272,9 +309,24 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         refresh()
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIF && grantResults.firstOrNull() != 0) {
+            toast(getString(R.string.notif_permission_hint))
+        }
+    }
+
     private fun toast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private companion object {
+        const val REQUEST_NOTIF = 1001
+    }
 }

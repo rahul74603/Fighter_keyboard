@@ -20,6 +20,7 @@ import android.widget.Toast
 import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.play.PlaybackService
 import com.fighter.studykeyboard.play.ReadingPlayer
 import com.fighter.studykeyboard.play.SpeechSpeaker
 import com.fighter.studykeyboard.play.TextTools
@@ -58,7 +59,8 @@ class FighterKeyboardService : InputMethodService(),
     private var btnPlay: TextView? = null
     private var btnPause: TextView? = null
     private var btnStop: TextView? = null
-    private var btnLoop: TextView? = null
+    private var btnCaps: TextView? = null
+    private var btnShuffle: TextView? = null
     private var btnVoice: TextView? = null
     private var btnShift: TextView? = null
 
@@ -83,7 +85,14 @@ class FighterKeyboardService : InputMethodService(),
     private var spokenPos = 0
 
     private val handler = Handler(Looper.getMainLooper())
+    private val queueHandler = Handler(Looper.getMainLooper())
     private var deleteRepeat: Runnable? = null
+
+    // Playback queue: every note is sent on its own, one after another.
+    private val queue = ArrayList<String>()
+    private var queueIndex = 0
+    private var itemFinished = false
+    private var playbackActive = false
 
     // ------------------------------------------------------------------ lifecycle
 
@@ -114,7 +123,8 @@ class FighterKeyboardService : InputMethodService(),
         btnPlay = view.findViewById(R.id.btnPlay)
         btnPause = view.findViewById(R.id.btnPause)
         btnStop = view.findViewById(R.id.btnStop)
-        btnLoop = view.findViewById(R.id.btnLoop)
+        btnCaps = view.findViewById(R.id.btnCaps)
+        btnShuffle = view.findViewById(R.id.btnShuffle)
         btnVoice = view.findViewById(R.id.btnVoice)
         btnShift = view.findViewById(R.id.btnShift)
 
@@ -154,7 +164,13 @@ class FighterKeyboardService : InputMethodService(),
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
-        stopPlayback()
+        // Voice mode keeps talking even when the keyboard hides (screen off / locked).
+        // Typing mode needs a focused text field, so only that part is stopped.
+        if (speaker.isRunning) {
+            player.stop()
+        } else {
+            stopPlayback()
+        }
         clearSuggestions()
     }
 
@@ -165,6 +181,8 @@ class FighterKeyboardService : InputMethodService(),
         deleteRepeat?.let { handler.removeCallbacks(it) }
         player.stop()
         speaker.shutdown()
+        PlaybackService.stop(this)
+        PlaybackService.stopRequested = null
         super.onDestroy()
     }
 
@@ -178,16 +196,22 @@ class FighterKeyboardService : InputMethodService(),
         }
         btnPause?.setOnClickListener { togglePause() }
         btnStop?.setOnClickListener { stopPlayback() }
-        btnLoop?.setOnClickListener {
-            prefs.loop = !prefs.loop
+        btnCaps?.setOnClickListener {
+            prefs.capsMode = !prefs.capsMode
+            applyShiftUi()
             updateToolbar()
-            toast(if (prefs.loop) "Loop on: note will repeat" else "Loop off")
+            toast(getString(if (prefs.capsMode) R.string.caps_on else R.string.caps_off))
+        }
+        btnShuffle?.setOnClickListener {
+            prefs.shuffle = !prefs.shuffle
+            updateToolbar()
+            toast(getString(if (prefs.shuffle) R.string.shuffle_on else R.string.shuffle_off))
         }
         btnVoice?.setOnClickListener {
             prefs.voiceEnabled = !prefs.voiceEnabled
             updateSpeedLabel()
             updateToolbar()
-            toast(if (prefs.voiceEnabled) "Voice mode on" else "Voice mode off")
+            toast(getString(if (prefs.voiceEnabled) R.string.tb_voice_on else R.string.tb_voice_off))
         }
         view.findViewById<View>(R.id.btnMore)?.setOnClickListener { openSettings() }
         btnNotes?.setOnClickListener { openNotesPanel(!notesOpen) }
@@ -292,7 +316,7 @@ class FighterKeyboardService : InputMethodService(),
     private fun typeChar(raw: String) {
         val ic = currentInputConnection ?: return
         var text = raw
-        if (shiftOn && text.length == 1 && text[0].isLetter()) text = text.uppercase()
+        if (text.length == 1 && text[0].isLetter() && upperCaseActive()) text = text.uppercase()
         ic.commitText(text, 1)
         if (shiftOn && !capsLock) {
             shiftOn = false
@@ -325,13 +349,21 @@ class FighterKeyboardService : InputMethodService(),
         applyShiftUi()
     }
 
+    /** T-mode = always capitals; SHIFT flips it to small letters while held/toggled. */
+    private fun upperCaseActive(): Boolean {
+        val shiftActive = shiftOn || capsLock
+        return if (prefs.capsMode) !shiftActive else shiftActive
+    }
+
     private fun applyShiftUi() {
-        val upper = shiftOn || capsLock
+        val upper = upperCaseActive()
         for (key in letterKeys) {
             val base = (key.tag as? String)?.substring(2) ?: continue
             key.text = if (upper) base.uppercase() else base
         }
         btnShift?.isSelected = upper
+        btnCaps?.isSelected = prefs.capsMode
+        btnShuffle?.isSelected = prefs.shuffle
     }
 
     private fun setSymbols(show: Boolean) {
@@ -415,44 +447,116 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun startPlayback(note: Note? = null, playAll: Boolean = false) {
         stopPlayback()
-        val text: String
-        if (playAll) {
-            text = store.combinedText()
-        } else if (note != null) {
-            text = note.text
-            prefs.lastNoteId = note.id
-        } else {
-            val last = prefs.lastNoteId?.let { store.get(it) }
-            if (last != null) {
-                text = last.text
-            } else {
-                text = store.combinedText()
-            }
-        }
-
-        if (text.isBlank()) {
+        val notes = store.all()
+        if (notes.isEmpty()) {
             toast(getString(R.string.no_notes_hint))
             openNotesPanel(true)
             return
         }
-
         openNotesPanel(false)
+
+        // Order: Play-all = every note (shuffled when enabled),
+        // Play = one note, randomised so the same message is not sent again and again.
+        val ordered: List<Note> = when {
+            playAll -> if (prefs.shuffle) notes.shuffled() else notes
+            note != null -> listOf(note)
+            prefs.shuffle && notes.size > 1 -> listOf(
+                notes.filter { it.id != prefs.lastNoteId }.random()
+            )
+            else -> {
+                val last = prefs.lastNoteId?.let { id -> notes.firstOrNull { it.id == id } }
+                listOf(last ?: notes.first())
+            }
+        }
+
+        queue.clear()
+        ordered.forEach { queue.add(applyCapsMode(it.text)) }
+        queueIndex = 0
+        itemFinished = false
+        playbackActive = true
+        if (!playAll) prefs.lastNoteId = ordered.first().id
+
         currentInputConnection?.finishComposingText()
+        spokenText = queue.first()
+        spokenPos = 0
+        wordStatus = ""
+
+        PlaybackService.stopRequested = { stopPlayback() }
+        PlaybackService.start(this, playbackStatusText(), playbackMode())
+        beginQueueItem()
+    }
+
+    /** Starts the note that is currently at [queueIndex]. */
+    private fun beginQueueItem() {
+        if (!playbackActive || queueIndex >= queue.size) return
+        itemFinished = false
+        val text = queue[queueIndex]
         spokenText = text
         spokenPos = 0
         wordStatus = ""
 
         val voice = prefs.voiceEnabled
         if (voice && speaker.supportsRangeSync()) {
-            speaker.start(text, prefs.speechRate, prefs.loop)
+            speaker.start(text, prefs.speechRate, false)
         } else if (voice) {
-            // Older Android: read aloud and type at the same time.
-            player.start(text)
+            // Older Android: speak and type at the same time.
+            player.start(text, loopAllowed = false)
             speaker.start(text, prefs.speechRate, false)
         } else {
-            player.start(text)
+            player.start(text, loopAllowed = false)
         }
+        updatePlaybackNotification()
         updateToolbar()
+        refreshStatus()
+    }
+
+    /** Called when one note of the queue is fully typed / spoken. */
+    private fun onQueueItemFinished() {
+        if (!playbackActive || itemFinished) return
+        itemFinished = true
+
+        if (prefs.autoSend) {
+            queueHandler.postDelayed({
+                if (playbackActive) sendEnter()
+            }, AUTO_SEND_DELAY_MS)
+        }
+
+        queueIndex++
+        when {
+            queueIndex < queue.size -> queueHandler.postDelayed({ beginQueueItem() }, NEXT_NOTE_DELAY_MS)
+            prefs.loop -> queueHandler.postDelayed({ restartQueue() }, NEXT_NOTE_DELAY_MS)
+            else -> queueHandler.postDelayed({ finishPlayback() }, NEXT_NOTE_DELAY_MS)
+        }
+    }
+
+    private fun restartQueue() {
+        if (!playbackActive) return
+        if (prefs.shuffle) queue.shuffle()
+        queueIndex = 0
+        beginQueueItem()
+    }
+
+    private fun finishPlayback() {
+        playbackActive = false
+        PlaybackService.stop(this)
+        PlaybackService.stopRequested = null
+        wordStatus = ""
+        updateToolbar()
+        refreshStatus()
+    }
+
+    private fun applyCapsMode(text: String): String =
+        if (prefs.capsMode) text.uppercase() else text
+
+    private fun playbackMode(): String =
+        if (prefs.voiceEnabled) PlaybackService.MODE_VOICE else PlaybackService.MODE_TYPING
+
+    private fun playbackStatusText(): String =
+        getString(R.string.notif_queue, (queueIndex + 1).coerceAtMost(queue.size), queue.size)
+
+    private fun updatePlaybackNotification() {
+        if (!playbackActive) return
+        PlaybackService.update(this, playbackStatusText(), playbackMode())
     }
 
     private fun togglePause() {
@@ -463,8 +567,14 @@ class FighterKeyboardService : InputMethodService(),
     }
 
     private fun stopPlayback() {
+        playbackActive = false
+        queueHandler.removeCallbacksAndMessages(null)
         player.stop()
         speaker.stop()
+        PlaybackService.stop(this)
+        PlaybackService.stopRequested = null
+        queue.clear()
+        queueIndex = 0
         spokenPos = 0
         wordStatus = ""
         updateToolbar()
@@ -487,6 +597,7 @@ class FighterKeyboardService : InputMethodService(),
         wordStatus = ""
         refreshStatus()
         updateToolbar()
+        onQueueItemFinished()
     }
 
     override fun onPlayerStateChanged() {
@@ -521,6 +632,7 @@ class FighterKeyboardService : InputMethodService(),
         }
         refreshStatus()
         updateToolbar()
+        onQueueItemFinished()
     }
 
     override fun onSpeechUnavailable(reason: String) {
@@ -543,7 +655,8 @@ class FighterKeyboardService : InputMethodService(),
         btnPause?.alpha = if (player.isRunning) 1f else 0.4f
         btnStop?.isEnabled = running
         btnStop?.alpha = if (running) 1f else 0.4f
-        btnLoop?.isSelected = prefs.loop
+        btnCaps?.isSelected = prefs.capsMode
+        btnShuffle?.isSelected = prefs.shuffle
         btnVoice?.isSelected = prefs.voiceEnabled
         btnPlay?.isSelected = running
         btnNotes?.isSelected = notesOpen
@@ -558,7 +671,12 @@ class FighterKeyboardService : InputMethodService(),
                 else getString(R.string.status_speaking) + " " + current
             }
             player.isRunning && player.isPaused -> getString(R.string.status_paused)
-            player.isRunning -> if (wordStatus.isNotEmpty()) wordStatus else idleStatus
+            player.isRunning || playbackActive -> {
+                val progress = if (queue.size > 1) {
+                    getString(R.string.notif_queue, (queueIndex + 1).coerceAtMost(queue.size), queue.size) + " • "
+                } else ""
+                if (wordStatus.isNotEmpty()) progress + wordStatus else progress + idleStatus
+            }
             else -> if (idleStatus.isEmpty()) getString(R.string.status_checking) else idleStatus
         }
     }
@@ -668,5 +786,7 @@ class FighterKeyboardService : InputMethodService(),
 
     private companion object {
         const val SUGGESTION_LIMIT = 20
+        const val AUTO_SEND_DELAY_MS = 320L
+        const val NEXT_NOTE_DELAY_MS = 1100L
     }
 }

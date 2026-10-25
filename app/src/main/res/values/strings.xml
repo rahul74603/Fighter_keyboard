@@ -15,6 +15,19 @@
     <string name="tb_loop">Loop</string>
     <string name="tb_voice">Voice</string>
     <string name="tb_more">More</string>
+    <string name="tb_caps">T</string>
+    <string name="tb_shuffle">Shuffle</string>
+    <string name="caps_on">T-mode ON: everything in CAPITALS</string>
+    <string name="caps_off">T-mode OFF: normal typing</string>
+    <string name="shuffle_on">Shuffle ON: random note every time</string>
+    <string name="shuffle_off">Shuffle OFF: notes in order</string>
+    <string name="auto_send">Auto-send</string>
+    <string name="auto_send_on">Auto-send ON: Enter dabega har note ke baad</string>
+    <string name="auto_send_off">Auto-send OFF: khud send karna padega</string>
+    <string name="tb_loop_on">Loop ON</string>
+    <string name="tb_loop_off">Loop OFF</string>
+    <string name="tb_voice_on">Voice mode ON</string>
+    <string name="tb_voice_off">Voice mode OFF</string>
     <string name="tb_notes_count">Notes %1$d</string>
 
     <!-- Status -->
@@ -44,6 +57,8 @@
 
     <!-- Notes -->
     <string name="letter_by_letter">Letter by letter</string>
+    <string name="toggle_caps">T-mode (CAPS)</string>
+    <string name="notif_permission_hint">Notification allow karo taaki background play ka control mile</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>
@@ -84,5 +99,14 @@
     <string name="how_to_tip">Tip: open Notes in the keyboard → + Add note → paste text → Play. Speed slider is above the keys.</string>
 
     <!-- Voice -->
+    <string name="channel_playback">Playback</string>
+    <string name="channel_playback_desc">Shows what Fighter Study Keyboard is playing right now</string>
+    <string name="notif_title">Fighter Study Keyboard</string>
+    <string name="notif_playing">Playing your notes…</string>
+    <string name="notif_mode_voice">Voice mode • screen off par bhi chalta rahega</string>
+    <string name="notif_mode_typing">Typing mode • app khula rakho, words type hote rahenge</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_queue">Note %1$d/%2$d chalu hai</string>
+
     <string name="voice_unavailable">Voice engine is not available on this device. Typing mode will be used.</string>
 </resources>

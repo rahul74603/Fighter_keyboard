@@ -13,6 +13,19 @@
     <string name="tb_loop">लूप</string>
     <string name="tb_voice">आवाज़</string>
     <string name="tb_more">सेटिंग</string>
+    <string name="tb_caps">T</string>
+    <string name="tb_shuffle">शफल</string>
+    <string name="caps_on">T-मोड ON: सब कुछ CAPITAL में</string>
+    <string name="caps_off">T-मोड OFF: सामान्य टाइपिंग</string>
+    <string name="shuffle_on">शफल ON: हर बार कोई भी नोट</string>
+    <string name="shuffle_off">शफल OFF: नोट क्रम से</string>
+    <string name="auto_send">ऑटो-सेंड</string>
+    <string name="auto_send_on">ऑटो-सेंड ON: हर नोट के बाद Enter दबेगा</string>
+    <string name="auto_send_off">ऑटो-सेंड OFF: खुद भेजना पड़ेगा</string>
+    <string name="tb_loop_on">लूप ON</string>
+    <string name="tb_loop_off">लूप OFF</string>
+    <string name="tb_voice_on">आवाज़ मोड ON</string>
+    <string name="tb_voice_off">आवाज़ मोड OFF</string>
     <string name="tb_notes_count">नोट्स %1$d</string>
 
     <string name="status_idle">तैयार • %1$d नोट्स • %2$d शब्द</string>
@@ -38,6 +51,8 @@
     <string name="key_letters">ABC</string>
 
     <string name="letter_by_letter">अक्षर-दर-अक्षर</string>
+    <string name="toggle_caps">T-मोड (CAPS)</string>
+    <string name="notif_permission_hint">नोटिफिकेशन चालू करें ताकि बैकग्राउंड प्ले का कंट्रोल मिले</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
@@ -74,6 +89,15 @@
     <string name="btn_pick">2. कीबोर्ड चुनें</string>
     <string name="practice_hint">यहाँ अभ्यास करें…</string>
     <string name="how_to_tip">टिप: कीबोर्ड में नोट्स खोलें → + नोट जोड़ें → पाठ पेस्ट करें → प्ले। स्पीड स्लाइडर कीज़ के ऊपर है।</string>
+
+    <string name="channel_playback">प्लेबैक</string>
+    <string name="channel_playback_desc">फाइटर स्टडी कीबोर्ड अभी क्या प्ले कर रहा है</string>
+    <string name="notif_title">फाइटर स्टडी कीबोर्ड</string>
+    <string name="notif_playing">आपके नोट्स चल रहे हैं…</string>
+    <string name="notif_mode_voice">आवाज़ मोड • स्क्रीन बंद होने पर भी चलेगा</string>
+    <string name="notif_mode_typing">टाइपिंग मोड • ऐप खुला रखें, शब्द टाइप होते रहेंगे</string>
+    <string name="notif_stop">रोकें</string>
+    <string name="notif_queue">नोट %1$d/%2$d चल रहा है</string>
 
     <string name="voice_unavailable">इस डिवाइस में आवाज़ इंजन नहीं है। टाइपिंग मोड चलेगा।</string>
 </resources>

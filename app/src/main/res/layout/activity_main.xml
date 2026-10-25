@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:fillViewport="true">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/app_bg"
     android:orientation="vertical"
     android:paddingStart="16dp"
@@ -93,9 +99,8 @@
     <ListView
         android:id="@+id/lvNotes"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="260dp"
         android:layout_marginTop="6dp"
-        android:layout_weight="1"
         android:clipToPadding="false"
         android:divider="@null"
         android:dividerHeight="0dp"
@@ -192,6 +197,28 @@
             android:text="@string/letter_by_letter" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tgCaps"
+            style="@style/AppToggle"
+            android:text="@string/toggle_caps" />
+
+        <TextView
+            android:id="@+id/tgAutoSend"
+            style="@style/AppToggle"
+            android:text="@string/auto_send" />
+
+        <TextView
+            android:id="@+id/tgShuffle"
+            style="@style/AppToggle"
+            android:text="@string/tb_shuffle" />
+    </LinearLayout>
+
     <EditText
         android:id="@+id/etPractice"
         android:layout_width="match_parent"
@@ -216,3 +243,4 @@
         android:textColor="@color/app_text_dim"
         android:textSize="10sp" />
 </LinearLayout>
+</ScrollView>

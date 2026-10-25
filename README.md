@@ -8,6 +8,10 @@ Ek Android keyboard jo **padhai (study)** ke liye bana hai:
 - **Loop** — ek hi note baar-baar chalane ke liye.
 - **Voice mode (optional)** — phone ki text-to-speech se note bologe bhi, aur saath-saath type bhi hota rahega (Android 8+).
 - **Suggestion strip** — aapke hi notes ke words se suggestions.
+- **T-mode (CAPS)** — keyboard toolbar ka `T` button: jab tak ON hai, har letter/word CAPITAL me jayega (type karo ya Play karo). SHIFT dabao to us waqt small letter. Setting save rehti hai.
+- **Auto-send (Enter)** — har note type/speak hone ke baad keyboard khud **Enter (send)** dabata hai, isliye har note alag message ban kar chala jata hai — manually send nahi karna padta. Ek Play = ek note. Long-press Play / `Play all` = saare notes **ek-ek karke, alag-alag** send.
+- **Shuffle** — Play dabao to **random note** chunta hai (bilkul wahi note baar-baar nahi jata); Play all me notes ka order bhi shuffle hota hai; Loop me har round naya order.
+- **Background play** — voice mode screen off / phone lock / app minimise hone par bhi **bolta rehta hai** (notification me Stop button). Typing mode me words tab type hote hain jab text field saamne ho (Android keyboard ka rule — doosre app me jab wo front me na ho, type nahi kar sakta).
 - **Letter by letter** — chaho to word ke bajaye akshar-akshar typing effect (app settings me toggle).
 - **Paste button** — naya note kholne pe field **blank** aata hai; clipboard se paste karna ho to `Paste` dabao (auto-fill nahi hota).
 - **Import / Export** — notes ka backup clipboard se.
@@ -20,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v1.3.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v1.4.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -74,6 +78,12 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## Background play — sach kya hai
+
+- **Voice mode = 100% background**: foreground service + notification chalta rehta hai, screen off/lock ke baad bhi notes bologe.
+- **Typing mode = foreground only**: Android kisi bhi keyboard ko permission nahi deta ki wo kisi app me (jo screen pe nahi hai) text type kare. Isliye Play karte waqt target app khula ho, keyboard dikh raha ho. Screen off karte hi typing rukti hai, wapas aane par queue wahin se chalu hoti hai.
+- **In-app browser / FB auto-comment**: is app me browser daal kar FB login + auto-comment karana intentionally nahi kiya — (a) FB/Instagram ke rules ke against hai (automation se account ban ho sakta hai), (b) background WebView me page JS/click bharosemand nahi hota. Background chahiye to **voice mode** use karo, ya typing ke liye app saamne rakho — queue + auto-send usme kaam kar deta hai.
 
 ## Notes / limitations
 

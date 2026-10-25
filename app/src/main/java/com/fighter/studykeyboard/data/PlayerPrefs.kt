@@ -31,6 +31,21 @@ class PlayerPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_LETTERS, false)
         set(value) = prefs.edit().putBoolean(KEY_LETTERS, value).apply()
 
+    /** T-mode: sab kuch CAPITAL me jata hai jab tak switch band na ho. */
+    var capsMode: Boolean
+        get() = prefs.getBoolean(KEY_CAPS, false)
+        set(value) = prefs.edit().putBoolean(KEY_CAPS, value).apply()
+
+    /** Har note ke baad Enter (send) khud dab jaye. */
+    var autoSend: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_SEND, true)
+        set(value) = prefs.edit().putBoolean(KEY_AUTO_SEND, value).apply()
+
+    /** Random note / random order, taaki har baar same message na jaye. */
+    var shuffle: Boolean
+        get() = prefs.getBoolean(KEY_SHUFFLE, true)
+        set(value) = prefs.edit().putBoolean(KEY_SHUFFLE, value).apply()
+
     var lastNoteId: String?
         get() = prefs.getString(KEY_LAST_NOTE, null)
         set(value) = prefs.edit().putString(KEY_LAST_NOTE, value).apply()
@@ -50,5 +65,8 @@ class PlayerPrefs(context: Context) {
         private const val KEY_VOICE = "voice_enabled"
         private const val KEY_LETTERS = "letter_by_letter"
         private const val KEY_LAST_NOTE = "last_note_id"
+        private const val KEY_CAPS = "caps_mode"
+        private const val KEY_AUTO_SEND = "auto_send"
+        private const val KEY_SHUFFLE = "shuffle"
     }
 }

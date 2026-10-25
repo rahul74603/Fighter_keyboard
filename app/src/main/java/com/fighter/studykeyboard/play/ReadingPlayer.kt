@@ -33,6 +33,7 @@ class ReadingPlayer(
     private var index = 0
     private var passes = 0
 
+    private var allowLoop: Boolean = true
     private var letters: String = ""
     private var letterPos = 0
 
@@ -42,8 +43,9 @@ class ReadingPlayer(
     var isPaused: Boolean = false
         private set
 
-    fun start(text: String) {
+    fun start(text: String, loopAllowed: Boolean = true) {
         stopInternal()
+        allowLoop = loopAllowed
         words = TextTools.words(text)
         passes = 0
         index = 0
@@ -91,7 +93,7 @@ class ReadingPlayer(
             return
         }
         if (index >= words.size) {
-            if (!prefs.loop) {
+            if (!allowLoop || !prefs.loop) {
                 finish()
                 return
             }
