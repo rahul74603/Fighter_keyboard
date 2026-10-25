@@ -11,12 +11,28 @@ android {
         applicationId = "com.fighter.studykeyboard"
         minSdk = 21
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
+    }
+
+    // Fixed signing key so every build updates the previous install in place
+    // (debug keys are regenerated on every CI machine, which breaks updates).
+    signingConfigs {
+        create("study") {
+            storeFile = rootProject.file("keystore/fighter-study.p12")
+            storePassword = "fighter-study-2026"
+            keyAlias = "fighter"
+            keyPassword = "fighter-study-2026"
+            storeType = "PKCS12"
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("study")
+        }
         release {
+            signingConfig = signingConfigs.getByName("study")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -36,7 +52,5 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // Intentionally empty: framework UI only (small APK, fast builds).
 }
