@@ -12,6 +12,11 @@
     <color name="kb_accent">#7FB2FF</color>
     <color name="kb_accent_soft">#1D3459</color>
     <color name="kb_divider">#232833</color>
+    <!-- Study / test mode -->
+    <color name="study_bg">#0B0E13</color>
+    <color name="study_card">#151A22</color>
+    <color name="study_stroke">#242B37</color>
+
     <color name="note_card_dark">#1E232E</color>
     <color name="note_card_dark_stroke">#2B3140</color>
 

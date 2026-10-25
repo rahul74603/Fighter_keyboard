@@ -107,6 +107,10 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showInputMethodPicker()
         }
+        findViewById<View>(R.id.btnStudyMode).setOnClickListener {
+            stopPreview()
+            startActivity(Intent(this, StudyActivity::class.java))
+        }
         findViewById<View>(R.id.btnBrowser).setOnClickListener {
             startActivity(Intent(this, BrowserActivity::class.java))
         }

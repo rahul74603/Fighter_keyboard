@@ -68,6 +68,23 @@
     <string name="accessibility_hint">लिस्ट में “फाइटर स्टडी कीबोर्ड” चुनकर ON करें</string>
     <string name="accessibility_on">ऑटो-सेंड हेल्पर ON है ✓</string>
     <string name="accessibility_off">ऑटो-सेंड हेल्पर OFF है (Enter = नई लाइन हो सकती है)</string>
+    <string name="study_mode">स्टडी / टेस्ट मोड (आवाज़)</string>
+    <string name="study_progress">नोट %1$d/%2$d • %3$d शब्द</string>
+    <string name="study_hide">टेक्स्ट छिपाएँ</string>
+    <string name="study_auto_next">अगला अपने आप</string>
+    <string name="study_screen_on">स्क्रीन चालू</string>
+    <string name="study_prev">◀</string>
+    <string name="study_next">▶</string>
+    <string name="study_repeat">दोहराएँ</string>
+    <string name="study_listening">सुन रहे हैं… आँख बंद करके बोलिए</string>
+    <string name="study_check">अब देखें: सही याद था?</string>
+    <string name="study_paused">रुका हुआ</string>
+    <string name="study_hidden_title">🙈 टेक्स्ट छिपा है</string>
+    <string name="study_hidden_hint">पहले सुनें और खुद बोलें,
+फिर यहाँ टैप करके देखें</string>
+    <string name="notif_study">स्टडी मोड • नोट %1$d/%2$d</string>
+    <string name="study_hint">टिप: स्क्रीन बंद करके सुन सकते हैं (आवाज़ बैकग्राउंड में चलती है), वापस चालू करने पर वही नोट दिखेगा।</string>
+    <string name="study_panel">स्टडी</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

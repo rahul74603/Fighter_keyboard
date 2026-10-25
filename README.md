@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v1.5.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v1.6.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,18 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## Study / Test mode (naya)
+
+App me bada button **“Study / Test mode (voice)”** (keyboard ke Notes panel me bhi `Study`):
+
+- Notes **bol kar sunaye jate hain** — screen on/off dono me chalta hai (voice foreground service).
+- Note ka text **screen par bada likha** aata hai, aur jo word bola ja raha hai wo **highlight** hota hai — aankh band karke suno, kholo to wahi text saamne.
+- **Hide text** ON karo → text chhup jata hai (“🙈 aankh band karke bolo”), tap karke answer check — self test ke liye.
+- **Auto next** → ek note khatam, 1.5s baad agla (shuffle ke saath random order).
+- **Screen on** → test karte waqt screen band na ho.
+- Speed slider voice ki speed badalta hai; Hindi (Devanagari) notes ke liye Hindi voice, English ke liye English voice.
+- Notification me **Stop**; home/back karne par bhi voice chalti rehti hai.
 
 ## Send kaise chalta hai (jo Enter se send nahi hota)
 

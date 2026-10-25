@@ -9,6 +9,13 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
+    <style name="Theme.FighterKeyboard.Study" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/study_bg</item>
+        <item name="android:colorAccent">@color/kb_accent</item>
+        <item name="android:statusBarColor">@color/study_bg</item>
+        <item name="android:navigationBarColor">@color/study_bg</item>
+    </style>
+
     <style name="Theme.FighterKeyboard.Dialog" parent="@android:style/Theme.Material.Light.Dialog">
         <item name="android:windowBackground">@color/app_surface</item>
         <item name="android:colorAccent">@color/app_accent</item>

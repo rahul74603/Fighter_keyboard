@@ -231,6 +231,11 @@ class FighterKeyboardService : InputMethodService(),
         view.findViewById<View>(R.id.btnCloseNotes)?.setOnClickListener { openNotesPanel(false) }
         view.findViewById<View>(R.id.btnAddNote)?.setOnClickListener { openNoteEditor(null) }
         view.findViewById<View>(R.id.btnPlayAll)?.setOnClickListener { startPlayback(playAll = true) }
+        view.findViewById<View>(R.id.btnStudyPanel)?.setOnClickListener {
+            val intent = Intent(this, StudyActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
     }
 
     private fun wireSpeed(view: View) {

@@ -45,6 +45,16 @@
         android:textColor="@color/app_text"
         android:textSize="12sp" />
 
+    <TextView
+        android:id="@+id/btnStudyMode"
+        style="@style/AppButtonPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="0"
+        android:text="@string/study_mode"
+        android:textSize="14sp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -74,6 +74,23 @@
     <string name="accessibility_hint">List me “Fighter Study Keyboard” chuno aur ON karo</string>
     <string name="accessibility_on">Auto-send helper ON hai ✓</string>
     <string name="accessibility_off">Auto-send helper OFF hai (Enter = nayi line ho sakti hai)</string>
+    <string name="study_mode">Study / Test mode (voice)</string>
+    <string name="study_progress">Note %1$d/%2$d • %3$d words</string>
+    <string name="study_hide">Hide text</string>
+    <string name="study_auto_next">Auto next</string>
+    <string name="study_screen_on">Screen on</string>
+    <string name="study_prev">◀</string>
+    <string name="study_next">▶</string>
+    <string name="study_repeat">Repeat</string>
+    <string name="study_listening">Sun rahe hain… aankh band karke bolo</string>
+    <string name="study_check">Ab check karo: sahi yaad tha?</string>
+    <string name="study_paused">Paused</string>
+    <string name="study_hidden_title">🙈 Text chhupa hua hai</string>
+    <string name="study_hidden_hint">Pehle suno aur khud bolo,
+phir yahan tap karke check karo</string>
+    <string name="notif_study">Study mode • note %1$d/%2$d</string>
+    <string name="study_hint">Tip: screen off karke sun sakte ho (voice background me chalta hai), wapas on karne par wahi note dikhega.</string>
+    <string name="study_panel">Study</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

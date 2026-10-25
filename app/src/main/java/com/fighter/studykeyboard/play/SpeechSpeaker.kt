@@ -34,6 +34,7 @@ class SpeechSpeaker(context: Context) {
     private var loop = false
     private var utteranceId = ""
     private var counter = 0
+    private var pendingStart = false
 
     var isRunning: Boolean = false
         private set
@@ -52,6 +53,10 @@ class SpeechSpeaker(context: Context) {
         chooseLanguage()
         engine?.setSpeechRate(rate)
         engine?.setOnUtteranceProgressListener(progressListener)
+        if (pendingStart) {
+            pendingStart = false
+            speakNow()
+        }
     }
 
     private val progressListener = object : UtteranceProgressListener() {
@@ -98,6 +103,22 @@ class SpeechSpeaker(context: Context) {
     /** True when the platform can report speech ranges (Android 8.0 and newer). */
     fun supportsRangeSync(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
+    /** Hindi (Devanagari) note -> Hindi voice, English note -> English voice. */
+    private fun ensureLanguageFor(content: String) {
+        val tts = engine ?: return
+        val hasDevanagari = content.any { it.code in 0x0900..0x097F }
+        val candidates = if (hasDevanagari) {
+            listOf(Locale("hi", "IN"), Locale("hi"), Locale("en", "IN"))
+        } else {
+            listOf(Locale("en", "IN"), Locale.US, Locale.UK)
+        }
+        for (locale in candidates) {
+            val result = tts.setLanguage(locale)
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) return
+        }
+        tts.setLanguage(Locale.getDefault())
+    }
+
     private fun chooseLanguage() {
         val tts = engine ?: return
         val candidates = listOf(Locale("en", "IN"), Locale.US, Locale.UK)
@@ -114,7 +135,9 @@ class SpeechSpeaker(context: Context) {
         loop = loopPlayback
         if (text.isBlank()) return
         if (!ready) {
-            listener?.onSpeechUnavailable("Voice engine is still starting, please try again")
+            // Engine still warming up: remember the request and speak as soon as ready.
+            pendingStart = true
+            listener?.onSpeechStateChanged()
             return
         }
         speakNow()
@@ -125,6 +148,7 @@ class SpeechSpeaker(context: Context) {
         if (text.isBlank()) return
         counter++
         utteranceId = "fk-$counter"
+        ensureLanguageFor(text)
         tts.setSpeechRate(rate)
         isRunning = true
         listener?.onSpeechStarted(text.length)

@@ -31,6 +31,12 @@
         </activity>
 
         <activity
+            android:name=".StudyActivity"
+            android:exported="false"
+            android:label="@string/study_mode"
+            android:theme="@style/Theme.FighterKeyboard.Study" />
+
+        <activity
             android:name=".BrowserActivity"
             android:exported="false"
             android:label="@string/browser_title"
