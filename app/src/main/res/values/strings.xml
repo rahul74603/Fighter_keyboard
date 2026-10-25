@@ -91,6 +91,7 @@ phir yahan tap karke check karo</string>
     <string name="notif_study">Study mode • note %1$d/%2$d</string>
     <string name="study_hint">Tip: screen off karke sun sakte ho (voice background me chalta hai), wapas on karne par wahi note dikhega.</string>
     <string name="study_panel">Study</string>
+    <string name="study_background">Background me chalta rahega • notification se Stop kar sakte ho</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

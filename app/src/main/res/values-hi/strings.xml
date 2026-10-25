@@ -85,6 +85,7 @@
     <string name="notif_study">स्टडी मोड • नोट %1$d/%2$d</string>
     <string name="study_hint">टिप: स्क्रीन बंद करके सुन सकते हैं (आवाज़ बैकग्राउंड में चलती है), वापस चालू करने पर वही नोट दिखेगा।</string>
     <string name="study_panel">स्टडी</string>
+    <string name="study_background">बैकग्राउंड में चलता रहेगा • नोटिफिकेशन से रोक सकते हैं</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

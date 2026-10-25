@@ -2,6 +2,7 @@ package com.fighter.studykeyboard
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -135,6 +136,7 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
             updateToggles()
         }
 
+        ensureNotificationPermission()
         updateSpeedLabel()
         updateToggles()
         applyKeepScreenOn()
@@ -324,6 +326,32 @@ class StudyActivity : Activity(), SpeechSpeaker.Listener {
     override fun onResume() {
         super.onResume()
         applyKeepScreenOn()
+        // Session still running while we were in background? Keep the UI in sync.
+        if (playing) updateControls()
+    }
+
+    /**
+     * Back = app ko background me bhej do (finish mat karo), taaki voice chalti rahe.
+     * Session band karna ho to ✕ (Close) ya notification ka Stop dabao.
+     */
+    @Deprecated("Handled explicitly so playback survives going to the background")
+    override fun onBackPressed() {
+        if (playing) {
+            moveTaskToBack(true)
+            Toast.makeText(this, getString(R.string.study_background), Toast.LENGTH_SHORT).show()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
     }
 
     override fun onDestroy() {
