@@ -5,6 +5,7 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
@@ -190,6 +191,10 @@ class FighterKeyboardService : InputMethodService(),
         }
         view.findViewById<View>(R.id.btnMore)?.setOnClickListener { openSettings() }
         btnNotes?.setOnClickListener { openNotesPanel(!notesOpen) }
+        btnNotes?.setOnLongClickListener {
+            openNoteEditor(null)
+            true
+        }
     }
 
     private fun wireNotesPanel(view: View) {
@@ -274,8 +279,7 @@ class FighterKeyboardService : InputMethodService(),
                 updateSuggestions()
             }
             "key:enter" -> {
-                currentInputConnection?.commitText("\n", 1)
-                updateSuggestions()
+                if (sendEnter()) updateSuggestions()
             }
             "key:mode" -> setSymbols(true)
             "key:letters" -> setSymbols(false)
@@ -338,6 +342,21 @@ class FighterKeyboardService : InputMethodService(),
             capsLock = false
             applyShiftUi()
         }
+    }
+
+    /** Enter sends the current editor action when the app asks for one, else inserts a newline. */
+    private fun sendEnter(): Boolean {
+        val ic = currentInputConnection ?: return false
+        val info = currentInputEditorInfo
+        val multiline = info != null && (info.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+        if (!multiline && info != null) {
+            val action = info.imeOptions and EditorInfo.IME_MASK_ACTION
+            val sendable = action != EditorInfo.IME_ACTION_NONE &&
+                action != EditorInfo.IME_ACTION_UNSPECIFIED
+            if (sendable) return sendDefaultEditorAction(false)
+        }
+        ic.commitText("\n", 1)
+        return true
     }
 
     // ------------------------------------------------------------------ suggestions
@@ -586,9 +605,16 @@ class FighterKeyboardService : InputMethodService(),
         if (frame != null) {
             val params = frame.layoutParams
             if (params != null) {
-                params.height = resources.getDimensionPixelSize(
-                    if (open) R.dimen.keyboard_area_expanded else R.dimen.keyboard_area_height
-                )
+                val wanted = if (open) {
+                    val maxForScreen = (resources.displayMetrics.heightPixels * 0.55f).toInt()
+                    minOf(
+                        resources.getDimensionPixelSize(R.dimen.keyboard_area_expanded),
+                        maxForScreen
+                    )
+                } else {
+                    resources.getDimensionPixelSize(R.dimen.keyboard_area_height)
+                }
+                params.height = wanted
                 frame.layoutParams = params
             }
             frame.requestLayout()

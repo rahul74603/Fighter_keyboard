@@ -229,7 +229,9 @@
                         style="@style/KeyView"
                         android:layout_weight="4.4"
                         android:tag="key:space"
-                        android:text="" />
+                        android:text="@string/key_space"
+                        android:textColor="@color/kb_text_dim"
+                        android:textSize="11sp" />
 
                     <TextView
                         style="@style/KeyFunc"
@@ -330,7 +332,9 @@
                         style="@style/KeyView"
                         android:layout_weight="4.4"
                         android:tag="key:space"
-                        android:text="" />
+                        android:text="@string/key_space"
+                        android:textColor="@color/kb_text_dim"
+                        android:textSize="11sp" />
 
                     <TextView
                         style="@style/KeyView"

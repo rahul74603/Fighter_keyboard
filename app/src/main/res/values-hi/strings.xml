@@ -32,6 +32,7 @@
 
     <string name="key_del">मिटाएँ</string>
     <string name="key_shift">शिफ्ट</string>
+    <string name="key_space">स्पेस</string>
     <string name="key_enter">एंटर</string>
     <string name="key_symbols">\?123</string>
     <string name="key_letters">ABC</string>

@@ -4,10 +4,11 @@ Ek Android keyboard jo **padhai (study)** ke liye bana hai:
 
 - **Unlimited notes** — jitne chahe notes add karo (koi limit nahi). `+ Add note` dabao, apna text paste/type karo, save.
 - **Auto play** — `Play` dabao aur note ke **shabd ek-ek karke** khud type hote rahenge — WhatsApp message, YouTube comment, notes app… jahan bhi cursor ho.
-- **Speed control** — keyboard ke upar slider se reading speed set karo: dheere (2400 ms/word) se tez (200 ms/word) tak. Practice karte-karte speed badhao, reading speed badhegi.
+- **Speed control** — keyboard ke upar slider se reading speed set karo: dheere (1500 ms/word) se tez (200 ms/word) tak. Practice karte-karte slider aage badhao, reading speed badhegi.
 - **Loop** — ek hi note baar-baar chalane ke liye.
 - **Voice mode (optional)** — phone ki text-to-speech se note bologe bhi, aur saath-saath type bhi hota rahega (Android 8+).
 - **Suggestion strip** — aapke hi notes ke words se suggestions.
+- **Letter by letter** — chaho to word ke bajaye akshar-akshar typing effect (app settings me toggle).
 - **Import / Export** — notes ka backup clipboard se.
 
 Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
@@ -16,11 +17,13 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ## APK kaise banaye / install kare
 
-### Option 1 — GitHub Actions se (recommended, phone pe hi)
-1. Repo ke **Actions** tab me `Build APK` workflow kholo (push pe automatic chalta hai).
-2. Latest successful run → **Artifacts** → `fighter-study-keyboard-apk` download karo (zip).
-3. Zip se `app-debug.apk` nikaalo, phone me install karo (Unknown sources allow karna padega).
-4. App kholo → **1. Enable keyboard** → list me *Fighter Study Keyboard* ON karo → **2. Choose keyboard** se select karo.
+### Option 1 — seedha APK download (sabse aasan)
+**Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
+`fighter-study-keyboard-v1.0.0.apk` download karo → phone me install karo
+(Unknown sources / "Install unknown apps" allow karna padega).
+
+Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
+3. App kholo → **1. Enable keyboard** → list me *Fighter Study Keyboard* ON karo → **2. Choose keyboard** se select karo.
 
 ### Option 2 — local build
 ```bash

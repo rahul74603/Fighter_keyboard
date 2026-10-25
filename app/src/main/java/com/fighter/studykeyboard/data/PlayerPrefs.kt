@@ -15,7 +15,7 @@ class PlayerPrefs(context: Context) {
 
     /** 0 = slowest, 100 = fastest. */
     var speedProgress: Int
-        get() = prefs.getInt(KEY_SPEED, 45).coerceIn(0, 100)
+        get() = prefs.getInt(KEY_SPEED, 60).coerceIn(0, 100)
         set(value) = prefs.edit().putInt(KEY_SPEED, value.coerceIn(0, 100)).apply()
 
     var loop: Boolean
@@ -35,13 +35,13 @@ class PlayerPrefs(context: Context) {
         get() = prefs.getString(KEY_LAST_NOTE, null)
         set(value) = prefs.edit().putString(KEY_LAST_NOTE, value).apply()
 
-    /** Milliseconds between two words: slow end 2400 ms, fast end 200 ms. */
+    /** Milliseconds between two words: slow end 1500 ms, fast end 200 ms. */
     val wordDelayMs: Long
-        get() = (2400L - speedProgress * 22L).coerceAtLeast(200L)
+        get() = (1500L - speedProgress * 13L).coerceAtLeast(200L)
 
-    /** Text-to-speech rate: 0.5x (slow) .. 2.0x (fast). */
+    /** Text-to-speech rate: 0.5x (slow) .. 1.6x (fast). */
     val speechRate: Float
-        get() = 0.5f + speedProgress * 0.015f
+        get() = 0.5f + speedProgress * 0.011f
 
     companion object {
         private const val PREFS_NAME = "fighter_study_keyboard_settings"
