@@ -100,8 +100,9 @@ class PlaybackService : Service() {
             .setContentIntent(openIntent)
             .setOngoing(true)
             .addAction(
+                @Suppress("DEPRECATION")
                 Notification.Action.Builder(
-                    null,
+                    0,
                     getString(R.string.notif_stop),
                     stopIntent
                 ).build()

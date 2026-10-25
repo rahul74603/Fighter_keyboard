@@ -597,7 +597,8 @@ class FighterKeyboardService : InputMethodService(),
         wordStatus = ""
         refreshStatus()
         updateToolbar()
-        onQueueItemFinished()
+        // In "speak + type" mode the speech drives the queue (avoids double advance).
+        if (!speaker.isRunning) onQueueItemFinished()
     }
 
     override fun onPlayerStateChanged() {
