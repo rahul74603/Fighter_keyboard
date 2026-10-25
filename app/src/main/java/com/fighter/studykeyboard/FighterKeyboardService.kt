@@ -400,8 +400,7 @@ class FighterKeyboardService : InputMethodService(),
         val action = info.imeOptions and EditorInfo.IME_MASK_ACTION
         val sendLike = action == EditorInfo.IME_ACTION_SEND ||
             action == EditorInfo.IME_ACTION_GO ||
-            action == EditorInfo.IME_ACTION_DONE ||
-            action == EditorInfo.IME_ACTION_NEXT
+            action == EditorInfo.IME_ACTION_DONE
         if (!sendLike) return false
         return sendDefaultEditorAction(true)
     }

@@ -8,7 +8,7 @@ Ek Android keyboard jo **padhai (study)** ke liye bana hai:
 - **Loop** — ek hi note baar-baar chalane ke liye.
 - **Voice mode (optional)** — phone ki text-to-speech se note bologe bhi, aur saath-saath type bhi hota rahega (Android 8+).
 - **Suggestion strip** — aapke hi notes ke words se suggestions.
-- **T-mode (CAPS + digit map)** — keyboard toolbar ka `T` button: ON hone par sab CAPITAL + aapka digit map: **A=4, B=8, T=7, O=0, E=3, I=1, S=5, Z=2** (jaise `THANKS` → `74N5`… actually `7H4N5`). Typing aur Play dono par lagta hai. SHIFT dabao to us waqt normal.
+- **T-mode (CAPS + digit map)** — keyboard toolbar ka `T` button: ON hone par sab CAPITAL + aapka digit map: **A=4, B=8, T=7, O=0, E=3, I=1, S=5, Z=2** (jaise `THANKS` → `7H4NK5`, `BEST` → `8E57`). Typing aur Play dono par lagta hai. SHIFT dabao to us waqt normal.
 - **Auto-send** — har note type/speak hone ke baad khud send hota hai: pehle app ka asli **Send button** (optional accessibility helper), warna IME ka **Send action**, warna Enter, isliye har note alag message ban kar chala jata hai — manually send nahi karna padta. Ek Play = ek note. Long-press Play / `Play all` = saare notes **ek-ek karke, alag-alag** send.
 - **Shuffle** — Play dabao to **random note** chunta hai (bilkul wahi note baar-baar nahi jata); Play all me notes ka order bhi shuffle hota hai; Loop me har round naya order.
 - **Background play** — voice mode screen off / phone lock / app minimise hone par bhi **bolta rehta hai** (notification me Stop button). Typing mode me words tab type hote hain jab text field saamne ho (Android keyboard ka rule — doosre app me jab wo front me na ho, type nahi kar sakta).
