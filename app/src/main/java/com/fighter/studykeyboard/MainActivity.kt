@@ -22,6 +22,7 @@ import android.widget.Toast
 import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.play.AutoSendService
 import com.fighter.studykeyboard.play.TextTools
 import com.fighter.studykeyboard.ui.NotesAdapter
 
@@ -48,6 +49,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private lateinit var tgCaps: TextView
     private lateinit var tgAutoSend: TextView
     private lateinit var tgShuffle: TextView
+    private lateinit var tvAccessibilityState: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private var previewWords: List<String> = emptyList()
@@ -88,6 +90,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgCaps = findViewById(R.id.tgCaps)
         tgAutoSend = findViewById(R.id.tgAutoSend)
         tgShuffle = findViewById(R.id.tgShuffle)
+        tvAccessibilityState = findViewById(R.id.tvAccessibilityState)
 
         adapter = NotesAdapter(R.layout.item_note, this)
         lvNotes.adapter = adapter
@@ -103,6 +106,17 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         findViewById<View>(R.id.btnPick).setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showInputMethodPicker()
+        }
+        findViewById<View>(R.id.btnBrowser).setOnClickListener {
+            startActivity(Intent(this, BrowserActivity::class.java))
+        }
+        findViewById<View>(R.id.btnAccessibility).setOnClickListener {
+            try {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                toast(getString(R.string.accessibility_hint))
+            } catch (error: Exception) {
+                toast(getString(R.string.accessibility_hint))
+            }
         }
         findViewById<View>(R.id.btnAddNote).setOnClickListener { openNoteEditor(null) }
         findViewById<View>(R.id.btnExport).setOnClickListener { exportNotes() }
@@ -203,6 +217,10 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         seekSpeed.progress = prefs.speedProgress
         updateToggles()
         updateSpeedLabel()
+        tvAccessibilityState.text = getString(
+            if (AutoSendService.isEnabled(this)) R.string.accessibility_on
+            else R.string.accessibility_off
+        )
         updateStatus()
     }
 

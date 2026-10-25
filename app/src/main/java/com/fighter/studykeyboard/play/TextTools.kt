@@ -21,6 +21,24 @@ object TextTools {
         "what", "when", "where", "why", "how", "there", "their", "have", "will", "would"
     )
 
+    /**
+     * T-mode output: everything CAPITAL + leet digits, exactly as the user asked:
+     * A=4, B=8, T=7, O=0, E=3, I=1, S=5, Z=2.
+     */
+    private val T_MODE_DIGITS = mapOf(
+        'A' to '4', 'B' to '8', 'T' to '7', 'O' to '0',
+        'E' to '3', 'I' to '1', 'S' to '5', 'Z' to '2'
+    )
+
+    fun capsText(text: String): String {
+        val builder = StringBuilder(text.length)
+        for (ch in text) {
+            val upper = ch.uppercaseChar()
+            builder.append(T_MODE_DIGITS[upper] ?: upper)
+        }
+        return builder.toString()
+    }
+
     fun words(text: String): List<String> =
         text.split(WHITESPACE).filter { it.isNotBlank() }
 

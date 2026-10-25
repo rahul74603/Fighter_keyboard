@@ -59,6 +59,21 @@
     <string name="letter_by_letter">Letter by letter</string>
     <string name="toggle_caps">T-mode (CAPS)</string>
     <string name="notif_permission_hint">Notification allow karo taaki background play ka control mile</string>
+    <string name="notif_paused_hidden">Typing paused • keyboard wapas aate hi chalu</string>
+    <string name="open_browser">Browser kholo (login + play)</string>
+    <string name="browser_title">Browser</string>
+    <string name="br_back">◀</string>
+    <string name="br_forward">▶</string>
+    <string name="br_reload">⟳</string>
+    <string name="br_home">Home</string>
+    <string name="br_address_hint">Website ya search…</string>
+    <string name="br_hint">Yahan login karo, phir comment/msg box pe tap karke keyboard ka Play dabao. Typing mode me browser saamne rehna chahiye (Android ka rule).</string>
+    <string name="accessibility_button">3. Auto-send ON karo (Send button)</string>
+    <string name="accessibility_summary">Sirf aapke Play dabane par app ka Send button dabata hai</string>
+    <string name="accessibility_description">Fighter Study Keyboard ko app ka Send/Post button dhoondh kar dabane deta hai, taaki har note khud send ho jaye. Ye service sirf Play chalte waqt use hoti hai; screen ka data kahin save ya upload nahi hota.</string>
+    <string name="accessibility_hint">List me “Fighter Study Keyboard” chuno aur ON karo</string>
+    <string name="accessibility_on">Auto-send helper ON hai ✓</string>
+    <string name="accessibility_off">Auto-send helper OFF hai (Enter = nayi line ho sakti hai)</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

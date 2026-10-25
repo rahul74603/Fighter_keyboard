@@ -35,6 +35,7 @@ class ReadingPlayer(
 
     private var allowLoop: Boolean = true
     private var letters: String = ""
+    private var letterByLetterActive = false
     private var letterPos = 0
 
     var isRunning: Boolean = false
@@ -72,6 +73,25 @@ class ReadingPlayer(
         if (wasRunning) listener?.onPlayerStateChanged()
     }
 
+    /** Temporarily stops the timers but keeps the word position (resume later). */
+    fun suspendTimers() {
+        main.removeCallbacks(stepRunnable)
+        main.removeCallbacks(letterRunnable)
+    }
+
+    /** Continues from the current word after [suspendTimers]. */
+    fun resumeTimers() {
+        if (!isRunning) return
+        main.removeCallbacks(stepRunnable)
+        main.removeCallbacks(letterRunnable)
+        isPaused = false
+        if (letterByLetterActive && letterPos < letters.length) {
+            main.postDelayed(letterRunnable, 150L)
+        } else {
+            main.postDelayed(stepRunnable, 250L)
+        }
+    }
+
     private fun stopInternal() {
         isRunning = false
         isPaused = false
@@ -89,7 +109,9 @@ class ReadingPlayer(
         }
         val ic = connection()
         if (ic == null) {
-            finish()
+            // Keyboard is temporarily hidden (app switched, screen locked, send pressed).
+            // Keep the position and continue as soon as a text field is back.
+            main.postDelayed(stepRunnable, RETRY_MS)
             return
         }
         if (index >= words.size) {
@@ -106,7 +128,8 @@ class ReadingPlayer(
         val word = words[index]
         listener?.onPlayerWord(index, words.size, word)
         index++
-        if (prefs.letterByLetter) {
+        letterByLetterActive = prefs.letterByLetter
+        if (letterByLetterActive) {
             letters = word
             letterPos = 0
             stepLetter()
@@ -122,8 +145,9 @@ class ReadingPlayer(
             main.postDelayed(letterRunnable, 120L)
             return
         }
-        val ic = connection() ?: run {
-            finish()
+        val ic = connection()
+        if (ic == null) {
+            main.postDelayed(letterRunnable, RETRY_MS)
             return
         }
         if (letterPos < letters.length) {
@@ -146,5 +170,9 @@ class ReadingPlayer(
         stopInternal()
         listener?.onPlayerFinished()
         listener?.onPlayerStateChanged()
+    }
+
+    private companion object {
+        const val RETRY_MS = 300L
     }
 }

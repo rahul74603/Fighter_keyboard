@@ -48,6 +48,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnAccessibility"
+            style="@style/AppButtonSecondary"
+            android:text="@string/accessibility_button" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAccessibilityState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/app_text_dim"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
@@ -123,6 +143,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnBrowser"
+            style="@style/AppButtonGhost"
+            android:text="@string/browser_title" />
 
         <TextView
             android:id="@+id/btnExport"

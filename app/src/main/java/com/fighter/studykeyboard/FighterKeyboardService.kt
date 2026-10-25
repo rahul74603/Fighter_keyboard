@@ -20,6 +20,7 @@ import android.widget.Toast
 import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.play.AutoSendService
 import com.fighter.studykeyboard.play.PlaybackService
 import com.fighter.studykeyboard.play.ReadingPlayer
 import com.fighter.studykeyboard.play.SpeechSpeaker
@@ -153,6 +154,10 @@ class FighterKeyboardService : InputMethodService(),
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        if (playbackActive && !speaker.isRunning) {
+            player.resumeTimers()
+            updatePlaybackNotification()
+        }
         refreshDictionary()
         refreshNotes()
         updateSpeedLabel()
@@ -164,10 +169,11 @@ class FighterKeyboardService : InputMethodService(),
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
-        // Voice mode keeps talking even when the keyboard hides (screen off / locked).
-        // Typing mode needs a focused text field, so only that part is stopped.
-        if (speaker.isRunning) {
-            player.stop()
+        // Voice keeps talking in the background. Typing needs a visible text field,
+        // so it pauses here and resumes by itself when the keyboard is back.
+        if (playbackActive) {
+            player.suspendTimers()
+            PlaybackService.update(this, getString(R.string.notif_paused_hidden), playbackMode())
         } else {
             stopPlayback()
         }
@@ -316,7 +322,9 @@ class FighterKeyboardService : InputMethodService(),
     private fun typeChar(raw: String) {
         val ic = currentInputConnection ?: return
         var text = raw
-        if (text.length == 1 && text[0].isLetter() && upperCaseActive()) text = text.uppercase()
+        if (text.length == 1 && text[0].isLetter() && upperCaseActive()) {
+            text = if (prefs.capsMode) TextTools.capsText(text) else text.uppercase()
+        }
         ic.commitText(text, 1)
         if (shiftOn && !capsLock) {
             shiftOn = false
@@ -378,17 +386,35 @@ class FighterKeyboardService : InputMethodService(),
 
     /** Enter sends the current editor action when the app asks for one, else inserts a newline. */
     private fun sendEnter(): Boolean {
-        val ic = currentInputConnection ?: return false
-        val info = currentInputEditorInfo
-        val multiline = info != null && (info.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
-        if (!multiline && info != null) {
-            val action = info.imeOptions and EditorInfo.IME_MASK_ACTION
-            val sendable = action != EditorInfo.IME_ACTION_NONE &&
-                action != EditorInfo.IME_ACTION_UNSPECIFIED
-            if (sendable) return sendDefaultEditorAction(false)
-        }
-        ic.commitText("\n", 1)
+        if (triggerEditorSend()) return true
+        currentInputConnection?.commitText("\n", 1)
         return true
+    }
+
+    /**
+     * Presses the app's own send/post action. Works even in multiline fields
+     * (WhatsApp, comment boxes) where Enter alone would only add a new line.
+     */
+    private fun triggerEditorSend(): Boolean {
+        val info = currentInputEditorInfo ?: return false
+        val action = info.imeOptions and EditorInfo.IME_MASK_ACTION
+        val sendLike = action == EditorInfo.IME_ACTION_SEND ||
+            action == EditorInfo.IME_ACTION_GO ||
+            action == EditorInfo.IME_ACTION_DONE ||
+            action == EditorInfo.IME_ACTION_NEXT
+        if (!sendLike) return false
+        return sendDefaultEditorAction(true)
+    }
+
+    /**
+     * One tap on the app's real "Send" button (accessibility helper), else the
+     * IME send action, else a plain newline as the very last resort.
+     */
+    private fun performAutoSend() {
+        if (!playbackActive) return
+        if (AutoSendService.isEnabled(this) && AutoSendService.requestSend()) return
+        if (triggerEditorSend()) return
+        currentInputConnection?.commitText("\n", 1)
     }
 
     // ------------------------------------------------------------------ suggestions
@@ -516,9 +542,7 @@ class FighterKeyboardService : InputMethodService(),
         itemFinished = true
 
         if (prefs.autoSend) {
-            queueHandler.postDelayed({
-                if (playbackActive) sendEnter()
-            }, AUTO_SEND_DELAY_MS)
+            queueHandler.postDelayed({ performAutoSend() }, AUTO_SEND_DELAY_MS)
         }
 
         queueIndex++
@@ -546,7 +570,7 @@ class FighterKeyboardService : InputMethodService(),
     }
 
     private fun applyCapsMode(text: String): String =
-        if (prefs.capsMode) text.uppercase() else text
+        if (prefs.capsMode) TextTools.capsText(text) else text
 
     private fun playbackMode(): String =
         if (prefs.voiceEnabled) PlaybackService.MODE_VOICE else PlaybackService.MODE_TYPING
@@ -659,6 +683,7 @@ class FighterKeyboardService : InputMethodService(),
         btnCaps?.isSelected = prefs.capsMode
         btnShuffle?.isSelected = prefs.shuffle
         btnVoice?.isSelected = prefs.voiceEnabled
+        btnNotes?.isSelected = notesOpen
         btnPlay?.isSelected = running
         btnNotes?.isSelected = notesOpen
     }

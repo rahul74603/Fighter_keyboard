@@ -53,6 +53,21 @@
     <string name="letter_by_letter">अक्षर-दर-अक्षर</string>
     <string name="toggle_caps">T-मोड (CAPS)</string>
     <string name="notif_permission_hint">नोटिफिकेशन चालू करें ताकि बैकग्राउंड प्ले का कंट्रोल मिले</string>
+    <string name="notif_paused_hidden">टाइपिंग रुकी • कीबोर्ड वापस आते ही चालू</string>
+    <string name="open_browser">ब्राउज़र खोलें (लॉगिन + प्ले)</string>
+    <string name="browser_title">ब्राउज़र</string>
+    <string name="br_back">◀</string>
+    <string name="br_forward">▶</string>
+    <string name="br_reload">⟳</string>
+    <string name="br_home">होम</string>
+    <string name="br_address_hint">वेबसाइट या सर्च…</string>
+    <string name="br_hint">यहाँ लॉगिन करें, फिर कमेंट/मैसेज बॉक्स पर टैप कर कीबोर्ड का प्ले दबाएँ। टाइपिंग मोड में ब्राउज़र सामने रहना चाहिए (Android का नियम)।</string>
+    <string name="accessibility_button">3. ऑटो-सेंड चालू करें (Send बटन)</string>
+    <string name="accessibility_summary">सिर्फ आपके प्ले दबाने पर ऐप का Send बटन दबाता है</string>
+    <string name="accessibility_description">फाइटर स्टडी कीबोर्ड को ऐप का Send/Post बटन ढूँढकर दबाने देता है, ताकि हर नोट खुद भेजा जाए। यह सेवा सिर्फ प्ले के समय काम आती है; स्क्रीन का डेटा कहीं सेव या अपलोड नहीं होता।</string>
+    <string name="accessibility_hint">लिस्ट में “फाइटर स्टडी कीबोर्ड” चुनकर ON करें</string>
+    <string name="accessibility_on">ऑटो-सेंड हेल्पर ON है ✓</string>
+    <string name="accessibility_off">ऑटो-सेंड हेल्पर OFF है (Enter = नई लाइन हो सकती है)</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
