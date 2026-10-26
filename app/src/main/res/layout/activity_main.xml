@@ -65,6 +65,33 @@
         android:background="@drawable/app_btn_secondary"
         android:text="@string/background_play" />
 
+    <TextView
+        android:id="@+id/tvDiag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/app_text_dim"
+        android:textSize="10sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnBattery"
+            style="@style/AppButtonGhost"
+            android:text="@string/fix_battery"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnVoiceTest"
+            style="@style/AppButtonGhost"
+            android:text="@string/fix_voice_test"
+            android:textSize="10sp" />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

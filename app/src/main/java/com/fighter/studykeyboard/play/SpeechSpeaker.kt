@@ -15,6 +15,13 @@ import java.util.Locale
  */
 class SpeechSpeaker(context: Context) {
 
+    private val appContext = context.applicationContext
+
+    /** True once the system TTS engine answered. */
+    var isReady: Boolean = false
+        private set
+
+
     interface Listener {
         fun onSpeechStarted(charCount: Int)
         fun onSpeechRange(start: Int, end: Int)
@@ -40,7 +47,21 @@ class SpeechSpeaker(context: Context) {
         private set
 
     init {
-        engine = TextToSpeech(context.applicationContext) { status -> main.post { onEngineReady(status) } }
+        createEngine()
+    }
+
+    private fun createEngine() {
+        engine?.shutdown()
+        ready = false
+        isReady = false
+        engine = TextToSpeech(appContext) { status -> main.post { onEngineReady(status) } }
+    }
+
+    /** Used when the engine reported an error or was killed by the system. */
+    fun recreate() {
+        main.post {
+            createEngine()
+        }
     }
 
     private fun onEngineReady(status: Int) {
@@ -50,6 +71,7 @@ class SpeechSpeaker(context: Context) {
             return
         }
         ready = true
+        isReady = true
         chooseLanguage()
         engine?.setSpeechRate(rate)
         engine?.setOnUtteranceProgressListener(progressListener)

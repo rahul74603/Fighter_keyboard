@@ -94,6 +94,24 @@ class FighterKeyboardService : InputMethodService(),
     private var queueIndex = 0
     private var itemFinished = false
     private var playbackActive = false
+    private var playbackServiceStarted = false
+    private var lastTypedText = ""
+    private var lastProgressAt = 0L
+    private val watchdog = object : Runnable {
+        override fun run() {
+            if (playbackActive) {
+                val silentFor = System.currentTimeMillis() - lastProgressAt
+                if (!itemFinished && !player.isRunning && !speaker.isRunning && silentFor > STALL_MS) {
+                    // engine silently stopped -> pick the queue up again
+                    beginQueueItem()
+                } else if (player.isRunning && silentFor > STALL_MS) {
+                    player.suspendTimers()
+                    player.resumeTimers()
+                }
+            }
+            queueHandler.postDelayed(this, WATCHDOG_MS)
+        }
+    }
 
     // ------------------------------------------------------------------ lifecycle
 
@@ -414,11 +432,16 @@ class FighterKeyboardService : InputMethodService(),
      * One tap on the app's real "Send" button (accessibility helper), else the
      * IME send action, else a plain newline as the very last resort.
      */
-    private fun performAutoSend() {
-        if (!playbackActive) return
-        if (AutoSendService.isEnabled(this) && AutoSendService.requestSend()) return
-        if (triggerEditorSend()) return
-        currentInputConnection?.commitText("\n", 1)
+    private fun performAutoSend(): Boolean {
+        if (!playbackActive) return false
+        try {
+            if (AutoSendService.isEnabled(this) && AutoSendService.requestSend()) return true
+            if (triggerEditorSend()) return true
+            currentInputConnection?.commitText("\n", 1)
+        } catch (error: Exception) {
+            // never let a send attempt kill the queue
+        }
+        return false
     }
 
     // ------------------------------------------------------------------ suggestions
@@ -504,6 +527,9 @@ class FighterKeyboardService : InputMethodService(),
         queueIndex = 0
         itemFinished = false
         playbackActive = true
+        lastProgressAt = System.currentTimeMillis()
+        queueHandler.removeCallbacks(watchdog)
+        queueHandler.postDelayed(watchdog, WATCHDOG_MS)
         if (!playAll) prefs.lastNoteId = ordered.first().id
 
         currentInputConnection?.finishComposingText()
@@ -513,6 +539,7 @@ class FighterKeyboardService : InputMethodService(),
 
         PlaybackService.stopRequested = { stopPlayback() }
         PlaybackService.start(this, playbackStatusText(), playbackMode())
+        playbackServiceStarted = true
         beginQueueItem()
     }
 
@@ -521,6 +548,8 @@ class FighterKeyboardService : InputMethodService(),
         if (!playbackActive || queueIndex >= queue.size) return
         itemFinished = false
         val text = queue[queueIndex]
+        lastTypedText = text
+        lastProgressAt = System.currentTimeMillis()
         spokenText = text
         spokenPos = 0
         wordStatus = ""
@@ -544,16 +573,79 @@ class FighterKeyboardService : InputMethodService(),
     private fun onQueueItemFinished() {
         if (!playbackActive || itemFinished) return
         itemFinished = true
+        lastProgressAt = System.currentTimeMillis()
 
         if (prefs.autoSend) {
-            queueHandler.postDelayed({ performAutoSend() }, AUTO_SEND_DELAY_MS)
+            attemptSend(attempt = 0)
+        } else {
+            proceedToNextItem()
         }
+    }
 
+    /**
+     * Send with retries: after each tap we check whether the app's text field is
+     * actually empty. If it still holds our text (send button not found), we try
+     * again, and as a last resort clear our own text so the next note is never
+     * glued to the previous one. The queue always continues.
+     */
+    private fun attemptSend(attempt: Int) {
+        val delay = if (attempt == 0) AUTO_SEND_DELAY_MS else SEND_RETRY_MS
+        queueHandler.postDelayed({
+            if (!playbackActive) return@postDelayed
+            performAutoSend()
+            queueHandler.postDelayed({
+                if (!playbackActive) return@postDelayed
+                if (isFieldCleared() || attempt >= MAX_SEND_ATTEMPTS) {
+                    if (!isFieldCleared()) {
+                        clearOwnText()
+                        toast(getString(R.string.send_retry_hint))
+                    }
+                    proceedToNextItem()
+                } else {
+                    attemptSend(attempt + 1)
+                }
+            }, SEND_VERIFY_DELAY_MS)
+        }, delay)
+    }
+
+    private fun proceedToNextItem() {
+        if (!playbackActive) return
         queueIndex++
         when {
-            queueIndex < queue.size -> queueHandler.postDelayed({ beginQueueItem() }, NEXT_NOTE_DELAY_MS)
-            prefs.loop -> queueHandler.postDelayed({ restartQueue() }, NEXT_NOTE_DELAY_MS)
-            else -> queueHandler.postDelayed({ finishPlayback() }, NEXT_NOTE_DELAY_MS)
+            queueIndex < queue.size ->
+                queueHandler.postDelayed({ beginQueueItem() }, NEXT_NOTE_DELAY_MS)
+            prefs.loop ->
+                queueHandler.postDelayed({ restartQueue() }, NEXT_NOTE_DELAY_MS)
+            else ->
+                queueHandler.postDelayed({ finishPlayback() }, NEXT_NOTE_DELAY_MS)
+        }
+    }
+
+    /** True when the focused text field no longer contains the text we typed. */
+    private fun isFieldCleared(): Boolean {
+        val ic = currentInputConnection ?: return true
+        val before = try {
+            ic.getTextBeforeCursor(500, 0)?.toString().orEmpty()
+        } catch (error: Exception) {
+            return true
+        }
+        return before.isBlank()
+    }
+
+    /** Removes only our own typed text (never the user's older content). */
+    private fun clearOwnText() {
+        val ic = currentInputConnection ?: return
+        try {
+            val before = ic.getTextBeforeCursor(600, 0)?.toString().orEmpty()
+            val typed = lastTypedText.trimEnd()
+            if (before.isBlank() || typed.isEmpty()) return
+            val remove = when {
+                before.endsWith(typed) -> typed.length
+                else -> minOf(typed.length, before.length)
+            }
+            if (remove > 0) ic.deleteSurroundingText(remove, 0)
+        } catch (error: Exception) {
+            // ignore
         }
     }
 
@@ -568,6 +660,7 @@ class FighterKeyboardService : InputMethodService(),
         playbackActive = false
         PlaybackService.stop(this)
         PlaybackService.stopRequested = null
+        playbackServiceStarted = false
         wordStatus = ""
         updateToolbar()
         refreshStatus()
@@ -583,7 +676,7 @@ class FighterKeyboardService : InputMethodService(),
         getString(R.string.notif_queue, (queueIndex + 1).coerceAtMost(queue.size), queue.size)
 
     private fun updatePlaybackNotification() {
-        if (!playbackActive) return
+        if (!playbackActive || !playbackServiceStarted) return
         PlaybackService.update(this, playbackStatusText(), playbackMode())
     }
 
@@ -596,11 +689,13 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun stopPlayback() {
         playbackActive = false
+        queueHandler.removeCallbacks(watchdog)
         queueHandler.removeCallbacksAndMessages(null)
         player.stop()
         speaker.stop()
         PlaybackService.stop(this)
         PlaybackService.stopRequested = null
+        playbackServiceStarted = false
         queue.clear()
         queueIndex = 0
         spokenPos = 0
@@ -617,6 +712,7 @@ class FighterKeyboardService : InputMethodService(),
     }
 
     override fun onPlayerWord(index: Int, total: Int, word: String) {
+        lastProgressAt = System.currentTimeMillis()
         wordStatus = getString(R.string.player_status, index + 1, total, word)
         tvStatus?.text = wordStatus
     }
@@ -817,6 +913,11 @@ class FighterKeyboardService : InputMethodService(),
     private companion object {
         const val SUGGESTION_LIMIT = 20
         const val AUTO_SEND_DELAY_MS = 320L
-        const val NEXT_NOTE_DELAY_MS = 1100L
+        const val SEND_RETRY_MS = 900L
+        const val SEND_VERIFY_DELAY_MS = 700L
+        const val MAX_SEND_ATTEMPTS = 2
+        const val NEXT_NOTE_DELAY_MS = 1200L
+        const val WATCHDOG_MS = 4000L
+        const val STALL_MS = 9000L
     }
 }

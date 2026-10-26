@@ -39,6 +39,8 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     private var paused = false
     private var currentText = ""
     private var wakeLock: PowerManager.WakeLock? = null
+    private var ttsRetries = 0
+    private var hasSession = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -66,11 +68,15 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
             ACTION_PREV -> step(-1)
             ACTION_REPEAT -> repeatCurrent()
             ACTION_SPEED -> repeatCurrent()
+            ACTION_TEST -> speakForTest()
             ACTION_STOP -> {
                 stopSession()
                 return START_NOT_STICKY
             }
-            else -> Unit
+            else -> if (hasSession) {
+                // System restarted us (OEM kill / low memory): continue where we were.
+                speakCurrent()
+            }
         }
         return START_STICKY
     }
@@ -102,6 +108,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         val note = notes[index.coerceIn(0, notes.size - 1)]
         currentText = if (prefs.capsMode) TextTools.capsText(note.text) else note.text
         prefs.lastNoteId = note.id
+        hasSession = true
         playing = true
         paused = false
         acquireWakeLock()
@@ -191,9 +198,33 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     }
 
     override fun onSpeechUnavailable(reason: String) {
+        if (ttsRetries < MAX_TTS_RETRIES) {
+            ttsRetries++
+            publish(getString(R.string.study_starting_voice), 0, 0)
+            updateNotification(getString(R.string.study_starting_voice))
+            handler.postDelayed({
+                speaker?.recreate()
+                if (notes.isNotEmpty() && !paused) speakCurrent()
+            }, TTS_RETRY_DELAY_MS)
+            return
+        }
         playing = false
         publish(getString(R.string.voice_unavailable), 0, 0)
         updateNotification(getString(R.string.voice_unavailable))
+    }
+
+    /** Diagnostics: speaks a short sample so the user can check the voice engine. */
+    private fun speakForTest() {
+        currentText = getString(R.string.tts_test_text)
+        notes = emptyList()
+        index = 0
+        playing = true
+        paused = false
+        hasSession = false
+        acquireWakeLock()
+        publish(getString(R.string.study_testing_voice), 0, 0)
+        updateNotification(getString(R.string.study_testing_voice))
+        speaker?.start(currentText, prefs.speechRate, false)
     }
 
     override fun onSpeechStateChanged() = Unit
@@ -331,6 +362,15 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         }
     }
 
+    /** Swiping the app away must NOT stop the study session. */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        if (hasSession) {
+            publish(getString(R.string.study_background), 0, 0)
+            updateNotification(getString(R.string.study_background))
+        }
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
         speaker?.stop()
@@ -346,6 +386,8 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         private const val NOTIFICATION_ID = 4720
         private const val AUTO_NEXT_DELAY_MS = 1500L
         private const val MAX_WAKE_LOCK_MS = 2 * 60 * 60 * 1000L
+        private const val MAX_TTS_RETRIES = 2
+        private const val TTS_RETRY_DELAY_MS = 1500L
 
         const val ACTION_PLAY = "com.fighter.studykeyboard.STUDY_PLAY"
         const val ACTION_PAUSE = "com.fighter.studykeyboard.STUDY_PAUSE"
@@ -355,6 +397,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         const val ACTION_REPEAT = "com.fighter.studykeyboard.STUDY_REPEAT"
         const val ACTION_SPEED = "com.fighter.studykeyboard.STUDY_SPEED"
         const val ACTION_STOP = "com.fighter.studykeyboard.STUDY_STOP"
+        const val ACTION_TEST = "com.fighter.studykeyboard.STUDY_TEST"
         private const val EXTRA_PLAY_ALL = "extra_play_all"
         private const val EXTRA_NOTE_ID = "extra_note_id"
 

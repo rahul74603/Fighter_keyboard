@@ -6,7 +6,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -51,6 +53,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private lateinit var tgAutoSend: TextView
     private lateinit var tgShuffle: TextView
     private lateinit var tvAccessibilityState: TextView
+    private lateinit var tvDiag: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private var previewWords: List<String> = emptyList()
@@ -92,6 +95,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgAutoSend = findViewById(R.id.tgAutoSend)
         tgShuffle = findViewById(R.id.tgShuffle)
         tvAccessibilityState = findViewById(R.id.tvAccessibilityState)
+        tvDiag = findViewById(R.id.tvDiag)
 
         adapter = NotesAdapter(R.layout.item_note, this)
         lvNotes.adapter = adapter
@@ -111,6 +115,11 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         findViewById<View>(R.id.btnStudyMode).setOnClickListener {
             stopPreview()
             startActivity(Intent(this, StudyActivity::class.java))
+        }
+        findViewById<View>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
+        findViewById<View>(R.id.btnVoiceTest).setOnClickListener {
+            StudyPlaybackService.command(this, StudyPlaybackService.ACTION_TEST)
+            toast(getString(R.string.study_testing_voice))
         }
         findViewById<View>(R.id.btnBackgroundPlay).setOnClickListener {
             StudyPlaybackService.play(this, playAll = true)
@@ -230,6 +239,17 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             if (AutoSendService.isEnabled(this)) R.string.accessibility_on
             else R.string.accessibility_off
         )
+        val notificationsOn = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        val accessibilityOn = AutoSendService.isEnabled(this)
+        val batteryFree = isBatteryUnrestricted()
+        tvDiag.text = getString(
+            R.string.diag_status,
+            getString(if (notificationsOn) R.string.diag_yes else R.string.diag_no),
+            getString(if (accessibilityOn) R.string.diag_yes else R.string.diag_no),
+            getString(if (batteryFree) R.string.diag_yes else R.string.diag_no)
+        )
         updateStatus()
     }
 
@@ -344,6 +364,37 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_NOTIF && grantResults.firstOrNull() != 0) {
             toast(getString(R.string.notif_permission_hint))
+        }
+    }
+
+    /** Vivo/oppo/mi jaise phones background service kill karte hain - isse chhoot milti hai. */
+    private fun requestBatteryExemption() {
+        if (isBatteryUnrestricted()) {
+            toast(getString(R.string.battery_ok))
+            return
+        }
+        try {
+            val intent = Intent(
+                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:$packageName")
+            )
+            startActivity(intent)
+        } catch (error: Exception) {
+            try {
+                startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                toast(getString(R.string.battery_hint))
+            } catch (error2: Exception) {
+                toast(getString(R.string.battery_hint))
+            }
+        }
+    }
+
+    private fun isBatteryUnrestricted(): Boolean {
+        return try {
+            val power = getSystemService(Context.POWER_SERVICE) as PowerManager
+            power.isIgnoringBatteryOptimizations(packageName)
+        } catch (error: Exception) {
+            false
         }
     }
 
