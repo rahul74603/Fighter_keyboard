@@ -42,6 +42,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     private var wakeLock: PowerManager.WakeLock? = null
     private var ttsRetries = 0
     private var hasSession = false
+    private var announceIntro = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -64,10 +65,13 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
             DebugLog.log("StudyService", error)
         }
         when (intent?.action) {
-            ACTION_PLAY -> startSession(
-                playAll = intent.getBooleanExtra(EXTRA_PLAY_ALL, true),
-                noteId = intent.getStringExtra(EXTRA_NOTE_ID)
-            )
+            ACTION_PLAY -> {
+                announceIntro = intent.getBooleanExtra(EXTRA_INTRO, false)
+                startSession(
+                    playAll = intent.getBooleanExtra(EXTRA_PLAY_ALL, true),
+                    noteId = intent.getStringExtra(EXTRA_NOTE_ID)
+                )
+            }
             ACTION_PAUSE -> pausePlayback()
             ACTION_RESUME -> resumePlayback()
             ACTION_NEXT -> step(1)
@@ -113,7 +117,14 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     private fun speakCurrent() {
         if (notes.isEmpty()) return
         val note = notes[index.coerceIn(0, notes.size - 1)]
-        currentText = if (prefs.capsMode) TextTools.capsText(note.text) else note.text
+        val noteText = if (prefs.capsMode) TextTools.capsText(note.text) else note.text
+        currentText = if (announceIntro) {
+            val intro = getString(R.string.study_intro)
+            announceIntro = false
+            "$intro $noteText"
+        } else {
+            noteText
+        }
         prefs.lastNoteId = note.id
         hasSession = true
         playing = true
@@ -412,12 +423,19 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         const val ACTION_TEST = "com.fighter.studykeyboard.STUDY_TEST"
         private const val EXTRA_PLAY_ALL = "extra_play_all"
         private const val EXTRA_NOTE_ID = "extra_note_id"
+        private const val EXTRA_INTRO = "extra_intro"
 
-        fun play(context: Context, playAll: Boolean = true, noteId: String? = null) {
+        fun play(
+            context: Context,
+            playAll: Boolean = true,
+            noteId: String? = null,
+            intro: Boolean = false
+        ) {
             val intent = Intent(context, StudyPlaybackService::class.java)
                 .setAction(ACTION_PLAY)
                 .putExtra(EXTRA_PLAY_ALL, playAll)
                 .putExtra(EXTRA_NOTE_ID, noteId)
+                .putExtra(EXTRA_INTRO, intro)
             start(context, intent)
         }
 

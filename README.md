@@ -82,6 +82,8 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 ## v2.0 — Internet fix + log
 
 - **Browser fix**: manifest me `INTERNET` + `ACCESS_NETWORK_STATE` permission missing tha — isliye browser me “internet nahi chal raha” tha. Ab add hai, saath me network check + error code.
+- **Background confirm**: app ke “Background play” button se start karne par pehle “Study mode shuru.” bolta hai — awaaz aayi matlab chalu. Log me har step likha jata hai.
+- **Auto-send helper dialog**: notes hone par app ek baar batata hai ki Send button ke liye accessibility helper ON karna hai (WhatsApp me Enter nayi line daalta hai, send nahi karta).
 - **Log screen** (`Log` button app me): TTS engine state, background service start/stop, har note, send ka kaunsa tarika chala, browser load/error — sab timestamp ke saath. **Copy** karke bhej sakte ho.
 
 ## Test & Fix (app me) — v1.9

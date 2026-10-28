@@ -51,6 +51,11 @@ class PlayerPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_STUDY_AUTO, true)
         set(value) = prefs.edit().putBoolean(KEY_STUDY_AUTO, value).apply()
 
+    /** Accessibility helper ka dialog sirf ek baar dikhaya jaye. */
+    var helperAsked: Boolean
+        get() = prefs.getBoolean(KEY_HELPER_ASKED, false)
+        set(value) = prefs.edit().putBoolean(KEY_HELPER_ASKED, value).apply()
+
     var lastNoteId: String?
         get() = prefs.getString(KEY_LAST_NOTE, null)
         set(value) = prefs.edit().putString(KEY_LAST_NOTE, value).apply()
@@ -74,5 +79,6 @@ class PlayerPrefs(context: Context) {
         private const val KEY_AUTO_SEND = "auto_send"
         private const val KEY_SHUFFLE = "shuffle"
         private const val KEY_STUDY_AUTO = "study_auto_next"
+        private const val KEY_HELPER_ASKED = "helper_asked"
     }
 }

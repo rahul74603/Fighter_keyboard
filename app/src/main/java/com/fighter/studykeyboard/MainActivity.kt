@@ -126,7 +126,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             toast(getString(R.string.study_testing_voice))
         }
         findViewById<View>(R.id.btnBackgroundPlay).setOnClickListener {
-            StudyPlaybackService.play(this, playAll = true)
+            StudyPlaybackService.play(this, playAll = true, intro = true)
             toast(getString(R.string.background_started))
         }
         findViewById<View>(R.id.btnBrowser).setOnClickListener {
@@ -223,6 +223,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         askNotificationPermission()
         DebugLog.log("App", "resumed")
         refresh()
+        offerAutoSendHelper()
     }
 
     override fun onDestroy() {
@@ -370,6 +371,30 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         if (requestCode == REQUEST_NOTIF && grantResults.firstOrNull() != 0) {
             toast(getString(R.string.notif_permission_hint))
         }
+    }
+
+    /**
+     * Auto-send needs the accessibility helper (Android does not let a keyboard
+     * press another app's Send button otherwise). Ask once, with a direct link.
+     */
+    private fun offerAutoSendHelper() {
+        if (prefs.helperAsked) return
+        if (AutoSendService.isEnabled(this)) return
+        if (store.all().isEmpty()) return
+        prefs.helperAsked = true
+        AlertDialog.Builder(this)
+            .setTitle(R.string.helper_dialog_title)
+            .setMessage(R.string.helper_dialog_msg)
+            .setPositiveButton(R.string.helper_dialog_enable) { _, _ ->
+                try {
+                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    toast(getString(R.string.accessibility_hint))
+                } catch (error: Exception) {
+                    toast(getString(R.string.accessibility_hint))
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /** Vivo/oppo/mi jaise phones background service kill karte hain - isse chhoot milti hai. */

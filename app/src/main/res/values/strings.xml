@@ -128,6 +128,10 @@ phir yahan tap karke check karo</string>
     <string name="log_button">Log dekho (test report)</string>
     <string name="br_no_network">Internet nahi hai. Wi-Fi/mobile data on karo.</string>
     <string name="send_helper_hint">Auto-send ke liye app me “3. Auto-send ON karo” dabao (Send button mil jayega)</string>
+    <string name="study_intro">Study mode shuru.</string>
+    <string name="helper_dialog_title">Send button ke liye ek setting</string>
+    <string name="helper_dialog_msg">WhatsApp/comment box me Enter nayi line daalta hai, send nahi karta.\n\nIsliye app ka asli Send button dabane ke liye accessibility helper chahiye. ON karo: Settings → Accessibility → Fighter Study Keyboard → ON.\n\nYe helper sirf aapke Play dabane par ek tap karta hai, screen data kahin save nahi hota.</string>
+    <string name="helper_dialog_enable">Abhi ON karo</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>
