@@ -92,6 +92,7 @@ class FighterKeyboardService : InputMethodService(),
 
     // Playback queue: every note is sent on its own, one after another.
     private val queue = ArrayList<String>()
+    private val queueTexts = ArrayList<Note>()
     private var queueIndex = 0
     private var itemFinished = false
     private var playbackActive = false
@@ -217,7 +218,7 @@ class FighterKeyboardService : InputMethodService(),
     private fun wireToolbar(view: View) {
         btnPlay?.setOnClickListener { startPlayback() }
         btnPlay?.setOnLongClickListener {
-            startPlayback(playAll = true)
+            startPlayback(single = true)
             true
         }
         btnPause?.setOnClickListener { togglePause() }
@@ -232,6 +233,12 @@ class FighterKeyboardService : InputMethodService(),
             prefs.shuffle = !prefs.shuffle
             updateToolbar()
             toast(getString(if (prefs.shuffle) R.string.shuffle_on else R.string.shuffle_off))
+        }
+        btnShuffle?.setOnLongClickListener {
+            prefs.loop = !prefs.loop
+            updateToolbar()
+            toast(getString(if (prefs.loop) R.string.tb_loop_on else R.string.tb_loop_off))
+            true
         }
         btnVoice?.setOnClickListener {
             prefs.voiceEnabled = !prefs.voiceEnabled
@@ -557,7 +564,11 @@ class FighterKeyboardService : InputMethodService(),
 
     // ------------------------------------------------------------------ playback
 
-    private fun startPlayback(note: Note? = null, playAll: Boolean = false) {
+    /**
+     * Play = SAARE notes, ek-ek karke, apne aap (auto-send ke saath), shuffled.
+     * Per-note Play button = sirf wahi note. Long-press Play = sirf last note.
+     */
+    private fun startPlayback(note: Note? = null, playAll: Boolean = false, single: Boolean = false) {
         stopPlayback()
 
         val notes = store.all()
@@ -568,30 +579,28 @@ class FighterKeyboardService : InputMethodService(),
         }
         openNotesPanel(false)
 
-        // Order: Play-all = every note (shuffled when enabled),
-        // Play = one note, randomised so the same message is not sent again and again.
         val ordered: List<Note> = when {
-            playAll -> if (prefs.shuffle) notes.shuffled() else notes
             note != null -> listOf(note)
-            prefs.shuffle && notes.size > 1 -> listOf(
-                notes.filter { it.id != prefs.lastNoteId }.random()
-            )
-            else -> {
-                val last = prefs.lastNoteId?.let { id -> notes.firstOrNull { it.id == id } }
-                listOf(last ?: notes.first())
-            }
+            single -> listOf(prefs.lastNoteId?.let { id -> notes.firstOrNull { it.id == id } } ?: notes.first())
+            prefs.shuffle && notes.size > 1 -> notes.shuffled()
+            else -> rotateFromLast(notes)
         }
 
         queue.clear()
         ordered.forEach { queue.add(applyCapsMode(it.text)) }
-        DebugLog.log("Playback", "start queue=${queue.size} caps=${prefs.capsMode} voice=${prefs.voiceEnabled} autoSend=${prefs.autoSend}")
+        queueTexts.clear()
+        ordered.forEach { queueTexts.add(it) }
+        prefs.lastNoteId = ordered.first().id
+        DebugLog.log(
+            "Playback",
+            "start queue=${queue.size} shuffle=${prefs.shuffle} loop=${prefs.loop} caps=${prefs.capsMode} autoSend=${prefs.autoSend}"
+        )
         queueIndex = 0
         itemFinished = false
         playbackActive = true
         lastProgressAt = System.currentTimeMillis()
         queueHandler.removeCallbacks(watchdog)
         queueHandler.postDelayed(watchdog, WATCHDOG_MS)
-        if (!playAll) prefs.lastNoteId = ordered.first().id
 
         currentInputConnection?.finishComposingText()
         spokenText = queue.first()
@@ -601,12 +610,28 @@ class FighterKeyboardService : InputMethodService(),
         PlaybackService.stopRequested = { stopPlayback() }
         PlaybackService.start(this, playbackStatusText(), playbackMode())
         playbackServiceStarted = true
+        toast(getString(R.string.play_started, queue.size))
         beginQueueItem()
+        updateToolbar()
+    }
+
+    /** Next play continues after the note that was sent last (no repeats). */
+    private fun rotateFromLast(notes: List<Note>): List<Note> {
+        val lastId = prefs.lastNoteId ?: return notes
+        val start = notes.indexOfFirst { it.id == lastId }
+        if (start < 0) return notes
+        return notes.drop(start + 1) + notes.take(start + 1)
     }
 
     /** Starts the note that is currently at [queueIndex]. */
-    private fun beginQueueItem() {
+    private fun beginQueueItem(retry: Int = 0) {
         if (!playbackActive || queueIndex >= queue.size) return
+        // After a send the app often rebuilds its text field; wait for it instead of
+        // throwing the note away.
+        if (currentInputConnection == null && retry < CONNECTION_RETRIES) {
+            queueHandler.postDelayed({ beginQueueItem(retry + 1) }, CONNECTION_RETRY_MS)
+            return
+        }
         itemFinished = false
         val text = queue[queueIndex]
         lastTypedText = text
@@ -732,12 +757,17 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun restartQueue() {
         if (!playbackActive) return
-        if (prefs.shuffle) queue.shuffle()
+        if (prefs.shuffle) {
+            queue.shuffle()
+            queueTexts.shuffle()
+        }
         queueIndex = 0
+        DebugLog.log("Playback", "loop restart (${queue.size} notes)")
         beginQueueItem()
     }
 
     private fun finishPlayback() {
+        if (queue.size > 0) toast(getString(R.string.all_notes_sent, queue.size))
         playbackActive = false
         PlaybackService.stop(this)
         PlaybackService.stopRequested = null
@@ -770,6 +800,7 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun stopPlayback() {
         playbackActive = false
+        queueTexts.clear()
         queueHandler.removeCallbacks(watchdog)
         queueHandler.removeCallbacksAndMessages(null)
         player.stop()
@@ -1003,6 +1034,8 @@ class FighterKeyboardService : InputMethodService(),
         const val SEND_NEWLINE = 4
         const val NEXT_NOTE_DELAY_MS = 1200L
         const val WATCHDOG_MS = 4000L
+        const val CONNECTION_RETRIES = 8
+        const val CONNECTION_RETRY_MS = 400L
         const val STALL_MS = 9000L
     }
 }

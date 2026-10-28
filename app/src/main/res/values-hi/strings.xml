@@ -131,6 +131,8 @@
     <string name="restricted_msg">Android 13+ में APK से इंस्टॉल हुई ऐप को एक्सेसिबिलिटी तब तक नहीं मिलती जब तक आप खुद allow न करें:\n\n1) Settings → Apps → Fighter Study Keyboard\n2) ऊपर 3 dots (⋮) दबाएँ\n3) “Allow restricted settings” दबाएँ\n4) फिर Accessibility → Fighter Study Keyboard → ON\n\nअगर vivo/oppo में ⋮ में यह ऑप्शन न हो तो हेल्पर के बिना भी सब चलता है — कीबोर्ड Enter key और Send action भेजता है।</string>
     <string name="restricted_help">Restricted setting कैसे हटाएँ?</string>
     <string name="open_app_info">App info खोलें</string>
+    <string name="play_started">%1$d नोट चल रहे हैं — एक-एक करके अपने आप भेजे जाएँगे</string>
+    <string name="all_notes_sent">सारे %1$d नोट भेज दिए ✓ (लूप ON करें तो फिर चलेंगे)</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
