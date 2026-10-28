@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v2.2.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v2.3.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,12 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## v2.3 — Loop fix + auto-pilot
+
+- **Loop fix**: pehle queue ke notes hi repeat hote the (isliye ek hi note baar-baar). Ab har loop round **saare notes se dobara banate hain**, shuffle ke saath — loop = “all notes loop”.
+- **Auto-pilot (optional, accessibility)**: keyboard band hone par bhi queue chalti hai — accessibility se app ke field me text set + Send tap. Shart: wahi app screen par ho aur Auto-send helper ON ho.
+- Screen off / phone lock me **koi bhi keyboard** type nahi kar sakta (Android ka hard rule) — us case me queue pause hoti hai, notification me “Typing paused” + app wapas aane par wahin se continue.
 
 ## v2.2 — Play = saare notes, ek-ek karke apne aap
 

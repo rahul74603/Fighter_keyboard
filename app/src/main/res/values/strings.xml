@@ -139,6 +139,8 @@ phir yahan tap karke check karo</string>
     <string name="open_app_info">App info kholo</string>
     <string name="play_started">%1$d notes chal rahe hain — ek-ek karke apne aap send honge</string>
     <string name="all_notes_sent">Saare %1$d notes bhej diye ✓ (Loop ON karo to dobara chalenge)</string>
+    <string name="autopilot_sent">Auto-pilot: note bhej diya ✓</string>
+    <string name="autopilot_hint">Background send ke liye: app saamne rakho + Auto-send helper ON (accessibility). Screen off/lock me Android keyboard ko type karne nahi deta.</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

@@ -133,6 +133,8 @@
     <string name="open_app_info">App info खोलें</string>
     <string name="play_started">%1$d नोट चल रहे हैं — एक-एक करके अपने आप भेजे जाएँगे</string>
     <string name="all_notes_sent">सारे %1$d नोट भेज दिए ✓ (लूप ON करें तो फिर चलेंगे)</string>
+    <string name="autopilot_sent">ऑटो-पायलट: नोट भेज दिया ✓</string>
+    <string name="autopilot_hint">बैकग्राउंड सेंड के लिए: ऐप सामने रखें + ऑटो-सेंड हेल्पर ON (एक्सेसिबिलिटी)। स्क्रीन बंद/लॉक में Android कीबोर्ड को टाइप करने नहीं देता।</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

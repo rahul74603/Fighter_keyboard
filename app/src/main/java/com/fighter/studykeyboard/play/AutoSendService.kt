@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.provider.Settings
 import android.text.TextUtils
+import android.os.Bundle
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.fighter.studykeyboard.util.DebugLog
@@ -34,6 +35,43 @@ class AutoSendService : AccessibilityService() {
         DebugLog.log("AutoSend", "service destroyed")
         if (instance === this) instance = null
         super.onDestroy()
+    }
+
+    /**
+     * Auto-pilot: fills the app's text field and presses its Send button using
+     * accessibility only - no keyboard needed. Used when the keyboard itself is
+     * hidden, so the queue keeps sending while the app stays on screen.
+     */
+    fun sendText(text: String): Boolean {
+        val root = rootInActiveWindow ?: return false
+        val field = findEditableNode(root, 0) ?: return false
+        val bundle = Bundle().apply {
+            putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        val filled = field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, bundle)
+        DebugLog.log("AutoSend", "autopilot fill=$filled")
+        if (!filled) return false
+        val clicked = clickSend()
+        DebugLog.log("AutoSend", "autopilot send clicked=$clicked")
+        return clicked
+    }
+
+    private fun findEditableNode(node: AccessibilityNodeInfo?, depth: Int): AccessibilityNodeInfo? {
+        if (node == null || depth > MAX_DEPTH) return null
+        if (!node.isVisibleToUser) return null
+        val editable = node.isEditable ||
+            node.className?.toString()?.contains("EditText") == true
+        if (editable && node.isEnabled) return node
+        for (index in 0 until node.childCount) {
+            val child = try {
+                node.getChild(index)
+            } catch (error: Exception) {
+                null
+            }
+            val found = findEditableNode(child, depth + 1)
+            if (found != null) return found
+        }
+        return null
     }
 
     /** Finds something that looks like a send/post button and clicks it. */
@@ -124,6 +162,17 @@ class AutoSendService : AccessibilityService() {
             if (TextUtils.isEmpty(enabled)) return false
             val target = "${context.packageName}/${AutoSendService::class.java.name}"
             return enabled.split(':').any { it.equals(target, ignoreCase = true) }
+        }
+
+        /** Auto-pilot: fills the focused app's field and sends (needs accessibility). */
+        fun requestSendText(text: String): Boolean {
+            val service = instance ?: return false
+            return try {
+                service.sendText(text)
+            } catch (error: Exception) {
+                DebugLog.log("AutoSend", error)
+                false
+            }
         }
 
         /** Clicks the app's send button if the service is running. */

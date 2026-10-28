@@ -98,6 +98,7 @@ class FighterKeyboardService : InputMethodService(),
     private var playbackActive = false
     private var playbackServiceStarted = false
     private var sendHelpShown = false
+    private var pausedNoticeShown = false
     private var lastTypedText = ""
     private var lastProgressAt = 0L
     private val watchdog = object : Runnable {
@@ -598,6 +599,7 @@ class FighterKeyboardService : InputMethodService(),
         queueIndex = 0
         itemFinished = false
         playbackActive = true
+        pausedNoticeShown = false
         lastProgressAt = System.currentTimeMillis()
         queueHandler.removeCallbacks(watchdog)
         queueHandler.postDelayed(watchdog, WATCHDOG_MS)
@@ -623,13 +625,59 @@ class FighterKeyboardService : InputMethodService(),
         return notes.drop(start + 1) + notes.take(start + 1)
     }
 
+    /**
+     * Sends the current note with accessibility only (no keyboard needed).
+     * Keeps the queue alive when the keyboard hides but the app is still open.
+     */
+    private fun tryAutopilot(retry: Int) {
+        if (!playbackActive || queueIndex >= queue.size) return
+        if (retry > AUTOPILOT_RETRIES) {
+            PlaybackService.update(this, getString(R.string.notif_paused_hidden), playbackMode())
+            notifyPausedOnce()
+            return
+        }
+        queueHandler.postDelayed({
+            if (!playbackActive) return@postDelayed
+            val text = queue[queueIndex].trim()
+            val sent = AutoSendService.requestSendText(text)
+            DebugLog.log("Autopilot", "note ${queueIndex + 1} sent=$sent")
+            if (sent) {
+                lastProgressAt = System.currentTimeMillis()
+                itemFinished = false
+                queueIndex++
+                toast(getString(R.string.autopilot_sent))
+                queueHandler.postDelayed({ beginQueueItem() }, NEXT_NOTE_DELAY_MS)
+            } else {
+                tryAutopilot(retry + 1)
+            }
+        }, AUTOPILOT_DELAY_MS)
+    }
+
+    private fun notifyPausedOnce() {
+        if (pausedNoticeShown) return
+        pausedNoticeShown = true
+        toast(getString(R.string.notif_paused_hidden))
+    }
+
     /** Starts the note that is currently at [queueIndex]. */
     private fun beginQueueItem(retry: Int = 0) {
         if (!playbackActive || queueIndex >= queue.size) return
         // After a send the app often rebuilds its text field; wait for it instead of
         // throwing the note away.
-        if (currentInputConnection == null && retry < CONNECTION_RETRIES) {
-            queueHandler.postDelayed({ beginQueueItem(retry + 1) }, CONNECTION_RETRY_MS)
+        if (currentInputConnection == null) {
+            // Keyboard not connected: with the accessibility helper we can still fill
+            // the app's field and press Send (app must be on screen).
+            if (AutoSendService.isEnabled(this) && AutoSendService.instance != null) {
+                tryAutopilot(retry)
+                return
+            }
+            if (retry < CONNECTION_RETRIES) {
+                queueHandler.postDelayed({ beginQueueItem(retry + 1) }, CONNECTION_RETRY_MS)
+                return
+            }
+            // No field for a long time -> park the session (resumes when app is back).
+            PlaybackService.update(this, getString(R.string.notif_paused_hidden), playbackMode())
+            notifyPausedOnce()
             return
         }
         itemFinished = false
@@ -755,15 +803,26 @@ class FighterKeyboardService : InputMethodService(),
         }
     }
 
+    /** Loop = saare notes ka naya round (ek hi note repeat nahi hota). */
     private fun restartQueue() {
         if (!playbackActive) return
-        if (prefs.shuffle) {
-            queue.shuffle()
-            queueTexts.shuffle()
+        val allNotes = store.all()
+        if (allNotes.isEmpty()) {
+            finishPlayback()
+            return
+        }
+        val round = if (prefs.shuffle) allNotes.shuffled() else rotateFromLast(allNotes)
+        queue.clear()
+        queueTexts.clear()
+        round.forEach {
+            queue.add(applyCapsMode(it.text))
+            queueTexts.add(it)
         }
         queueIndex = 0
-        DebugLog.log("Playback", "loop restart (${queue.size} notes)")
+        lastProgressAt = System.currentTimeMillis()
+        DebugLog.log("Playback", "loop restart (${queue.size} notes, shuffle=${prefs.shuffle})")
         beginQueueItem()
+        updateToolbar()
     }
 
     private fun finishPlayback() {
@@ -1036,6 +1095,8 @@ class FighterKeyboardService : InputMethodService(),
         const val WATCHDOG_MS = 4000L
         const val CONNECTION_RETRIES = 8
         const val CONNECTION_RETRY_MS = 400L
+        const val AUTOPILOT_RETRIES = 6
+        const val AUTOPILOT_DELAY_MS = 700L
         const val STALL_MS = 9000L
     }
 }
