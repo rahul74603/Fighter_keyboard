@@ -132,6 +132,11 @@ phir yahan tap karke check karo</string>
     <string name="helper_dialog_title">Send button ke liye ek setting</string>
     <string name="helper_dialog_msg">WhatsApp/comment box me Enter nayi line daalta hai, send nahi karta.\n\nIsliye app ka asli Send button dabane ke liye accessibility helper chahiye. ON karo: Settings → Accessibility → Fighter Study Keyboard → ON.\n\nYe helper sirf aapke Play dabane par ek tap karta hai, screen data kahin save nahi hota.</string>
     <string name="helper_dialog_enable">Abhi ON karo</string>
+    <string name="send_failed_hint">Auto-send nahi hua. Play ke baad message khud send karo — ya Settings → Apps → Fighter Study Keyboard → ⋮ → “Allow restricted settings” karke Auto-send helper ON karo.</string>
+    <string name="restricted_title">“Restricted setting” aa raha hai?</string>
+    <string name="restricted_msg">Android 13+ me APK se install hui app ko accessibility allow nahi karta jab tak aap khud allow na kare:\n\n1) Settings → Apps → Fighter Study Keyboard\n2) Upar 3 dots (⋮) dabao\n3) “Allow restricted settings” dabao\n4) Wapas Accessibility → Fighter Study Keyboard → ON\n\nAgar vivo/oppo me ⋮ me ye option na ho to Auto-send helper ke bina bhi sab chalta hai — keyboard Enter key aur Send action bhejta hai.</string>
+    <string name="restricted_help">Restricted setting kaise hataye?</string>
+    <string name="open_app_info">App info kholo</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

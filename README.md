@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v2.0.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v2.1.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,18 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## v2.1 — Auto-send **accessibility ke bina** (Restricted setting fix)
+
+Android 13+ (vivo/oppo/samsung) sideloaded APK ko accessibility allow nahi karta: **“Restricted setting”**. Isliye send ab accessibility par depend nahi karta. Har note ke baad keyboard ye order me try karta hai (aur verify karta hai ki message chala gaya):
+
+1. `performEditorAction(IME_ACTION_SEND)` — app ka apna send action
+2. `performEditorAction(IME_ACTION_DONE)`
+3. **Hardware Enter key event** (`InputConnection.sendKeyEvent`) — WhatsApp/comment box ise “send” maante hain, soft newline ko nahi
+4. Soft newline (last resort)
+5. (Optional) Accessibility se Send button click — agar allow kiya ho
+
+App me **“Restricted setting kaise hataye?”** button: Settings → Apps → Fighter Study Keyboard → ⋮ → Allow restricted settings (direct App-info shortcut bhi hai).
 
 ## v2.0 — Internet fix + log
 

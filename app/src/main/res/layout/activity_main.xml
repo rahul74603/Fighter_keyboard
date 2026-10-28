@@ -107,7 +107,16 @@
         <TextView
             android:id="@+id/btnAccessibility"
             style="@style/AppButtonSecondary"
+            android:layout_weight="1.6"
             android:text="@string/accessibility_button" />
+
+        <TextView
+            android:id="@+id/btnRestrictedHelp"
+            style="@style/AppButtonGhost"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="@string/restricted_help"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <TextView

@@ -126,6 +126,11 @@
     <string name="helper_dialog_title">Send बटन के लिए एक सेटिंग</string>
     <string name="helper_dialog_msg">WhatsApp/कमेंट बॉक्स में Enter नई लाइन डालता है, भेजता नहीं।\n\nइसलिए ऐप का असली Send बटन दबाने के लिए एक्सेसिबिलिटी हेल्पर चाहिए। ON करें: Settings → Accessibility → Fighter Study Keyboard → ON.\n\nयह हेल्पर सिर्फ आपके प्ले दबाने पर एक टैप करता है, स्क्रीन डेटा कहीं सेव नहीं होता।</string>
     <string name="helper_dialog_enable">अभी ON करें</string>
+    <string name="send_failed_hint">ऑटो-सेंड नहीं हुआ। प्ले के बाद मैसेज खुद भेजें — या Settings → Apps → Fighter Study Keyboard → ⋮ → “Allow restricted settings” करके ऑटो-सेंड हेल्पर ON करें।</string>
+    <string name="restricted_title">“Restricted setting” आ रहा है?</string>
+    <string name="restricted_msg">Android 13+ में APK से इंस्टॉल हुई ऐप को एक्सेसिबिलिटी तब तक नहीं मिलती जब तक आप खुद allow न करें:\n\n1) Settings → Apps → Fighter Study Keyboard\n2) ऊपर 3 dots (⋮) दबाएँ\n3) “Allow restricted settings” दबाएँ\n4) फिर Accessibility → Fighter Study Keyboard → ON\n\nअगर vivo/oppo में ⋮ में यह ऑप्शन न हो तो हेल्पर के बिना भी सब चलता है — कीबोर्ड Enter key और Send action भेजता है।</string>
+    <string name="restricted_help">Restricted setting कैसे हटाएँ?</string>
+    <string name="open_app_info">App info खोलें</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

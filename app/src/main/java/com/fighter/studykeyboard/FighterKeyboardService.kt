@@ -96,7 +96,7 @@ class FighterKeyboardService : InputMethodService(),
     private var itemFinished = false
     private var playbackActive = false
     private var playbackServiceStarted = false
-    private var warnedAboutHelper = false
+    private var sendHelpShown = false
     private var lastTypedText = ""
     private var lastProgressAt = 0L
     private val watchdog = object : Runnable {
@@ -434,27 +434,73 @@ class FighterKeyboardService : InputMethodService(),
      * One tap on the app's real "Send" button (accessibility helper), else the
      * IME send action, else a plain newline as the very last resort.
      */
-    private fun performAutoSend(): Boolean {
+    /**
+     * Sends one note. Accessibility is only the first (optional) option:
+     * the hardware Enter key event and editor actions work without it, which is
+     * what phones with "Restricted setting" (Android 13+ sideload) need.
+     */
+    private fun performAutoSend(strategy: Int): Boolean {
         if (!playbackActive) return false
+        val ic = currentInputConnection
         try {
-            val helperOn = AutoSendService.isEnabled(this)
-            if (helperOn && AutoSendService.requestSend()) {
-                DebugLog.log("Send", "sent via accessibility button")
-                return true
+            when (strategy) {
+                SEND_ACCESSIBILITY -> {
+                    if (AutoSendService.requestSend()) {
+                        DebugLog.log("Send", "accessibility click ok")
+                        return true
+                    }
+                }
+                SEND_EDITOR_SEND -> {
+                    if (ic != null && ic.performEditorAction(EditorInfo.IME_ACTION_SEND)) {
+                        DebugLog.log("Send", "performEditorAction(SEND)")
+                        return true
+                    }
+                }
+                SEND_EDITOR_DONE -> {
+                    if (ic != null && ic.performEditorAction(EditorInfo.IME_ACTION_DONE)) {
+                        DebugLog.log("Send", "performEditorAction(DONE)")
+                        return true
+                    }
+                }
+                SEND_ENTER_KEY -> {
+                    if (sendHardwareEnter(ic)) {
+                        DebugLog.log("Send", "hardware ENTER event")
+                        return true
+                    }
+                }
+                SEND_NEWLINE -> {
+                    ic?.commitText("\n", 1)
+                    DebugLog.log("Send", "fallback newline")
+                    return true
+                }
             }
-            if (triggerEditorSend()) {
-                DebugLog.log("Send", "sent via IME action")
-                return true
-            }
-            DebugLog.log(
-                "Send",
-                "fallback Enter (helper=$helperOn instance=${AutoSendService.instance != null})"
-            )
-            currentInputConnection?.commitText("\n", 1)
         } catch (error: Exception) {
             DebugLog.log("Send", error)
         }
         return false
+    }
+
+    /**
+     * A real hardware Enter key event. Many apps (WhatsApp, comment boxes) treat
+     * a physical Enter as "send", while the soft-keyboard newline only breaks the line.
+     */
+    private fun sendHardwareEnter(ic: android.view.inputmethod.InputConnection?): Boolean {
+        val connection = ic ?: return false
+        return try {
+            val now = android.os.SystemClock.uptimeMillis()
+            val down = android.view.KeyEvent(
+                now, now, android.view.KeyEvent.ACTION_DOWN,
+                android.view.KeyEvent.KEYCODE_ENTER, 0
+            )
+            val up = android.view.KeyEvent(
+                now, now + 20, android.view.KeyEvent.ACTION_UP,
+                android.view.KeyEvent.KEYCODE_ENTER, 0
+            )
+            connection.sendKeyEvent(down) && connection.sendKeyEvent(up)
+        } catch (error: Exception) {
+            DebugLog.log("Send", error)
+            false
+        }
     }
 
     // ------------------------------------------------------------------ suggestions
@@ -513,10 +559,7 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun startPlayback(note: Note? = null, playAll: Boolean = false) {
         stopPlayback()
-        if (prefs.autoSend && !AutoSendService.isEnabled(this) && !warnedAboutHelper) {
-            warnedAboutHelper = true
-            toast(getString(R.string.send_helper_hint))
-        }
+
         val notes = store.all()
         if (notes.isEmpty()) {
             toast(getString(R.string.no_notes_hint))
@@ -610,13 +653,19 @@ class FighterKeyboardService : InputMethodService(),
         val delay = if (attempt == 0) AUTO_SEND_DELAY_MS else SEND_RETRY_MS
         queueHandler.postDelayed({
             if (!playbackActive) return@postDelayed
-            performAutoSend()
+            val strategy = sendStrategy(attempt)
+            performAutoSend(strategy)
             queueHandler.postDelayed({
                 if (!playbackActive) return@postDelayed
-                if (isFieldCleared() || attempt >= MAX_SEND_ATTEMPTS) {
-                    if (!isFieldCleared()) {
-                        clearOwnText()
-                        toast(getString(R.string.send_retry_hint))
+                val cleared = isFieldCleared()
+                DebugLog.log("Send", "attempt=$attempt strategy=$strategy cleared=$cleared")
+                if (cleared) {
+                    proceedToNextItem()
+                } else if (attempt + 1 >= sendStrategyCount()) {
+                    clearOwnText()
+                    if (!sendHelpShown) {
+                        sendHelpShown = true
+                        toast(getString(R.string.send_failed_hint))
                     }
                     proceedToNextItem()
                 } else {
@@ -625,6 +674,19 @@ class FighterKeyboardService : InputMethodService(),
             }, SEND_VERIFY_DELAY_MS)
         }, delay)
     }
+
+    /** Accessibility is optional now - there is a working path without it. */
+    private fun sendStrategy(index: Int): Int {
+        val strategies = ArrayList<Int>(5)
+        if (AutoSendService.isEnabled(this)) strategies.add(SEND_ACCESSIBILITY)
+        strategies.add(SEND_EDITOR_SEND)
+        strategies.add(SEND_EDITOR_DONE)
+        strategies.add(SEND_ENTER_KEY)
+        strategies.add(SEND_NEWLINE)
+        return strategies[index.coerceIn(0, strategies.size - 1)]
+    }
+
+    private fun sendStrategyCount(): Int = if (AutoSendService.isEnabled(this)) 5 else 4
 
     private fun proceedToNextItem() {
         if (!playbackActive) return
@@ -934,7 +996,11 @@ class FighterKeyboardService : InputMethodService(),
         const val AUTO_SEND_DELAY_MS = 320L
         const val SEND_RETRY_MS = 900L
         const val SEND_VERIFY_DELAY_MS = 700L
-        const val MAX_SEND_ATTEMPTS = 2
+        const val SEND_ACCESSIBILITY = 0
+        const val SEND_EDITOR_SEND = 1
+        const val SEND_EDITOR_DONE = 2
+        const val SEND_ENTER_KEY = 3
+        const val SEND_NEWLINE = 4
         const val NEXT_NOTE_DELAY_MS = 1200L
         const val WATCHDOG_MS = 4000L
         const val STALL_MS = 9000L

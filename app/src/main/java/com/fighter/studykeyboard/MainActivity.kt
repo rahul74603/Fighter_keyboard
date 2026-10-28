@@ -117,6 +117,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             stopPreview()
             startActivity(Intent(this, StudyActivity::class.java))
         }
+        findViewById<View>(R.id.btnRestrictedHelp).setOnClickListener { showRestrictedHelp() }
         findViewById<View>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
         findViewById<View>(R.id.btnOpenLog).setOnClickListener {
             startActivity(Intent(this, LogActivity::class.java))
@@ -133,12 +134,12 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             startActivity(Intent(this, BrowserActivity::class.java))
         }
         findViewById<View>(R.id.btnAccessibility).setOnClickListener {
-            try {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                toast(getString(R.string.accessibility_hint))
-            } catch (error: Exception) {
-                toast(getString(R.string.accessibility_hint))
+            if (AutoSendService.isEnabled(this)) {
+                toast(getString(R.string.accessibility_on))
+                return@setOnClickListener
             }
+            // Sideloaded apps hit "Restricted setting" on Android 13+, so explain first.
+            showRestrictedHelp()
         }
         findViewById<View>(R.id.btnAddNote).setOnClickListener { openNoteEditor(null) }
         findViewById<View>(R.id.btnExport).setOnClickListener { exportNotes() }
@@ -223,7 +224,6 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         askNotificationPermission()
         DebugLog.log("App", "resumed")
         refresh()
-        offerAutoSendHelper()
     }
 
     override fun onDestroy() {
@@ -374,26 +374,32 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     }
 
     /**
-     * Auto-send needs the accessibility helper (Android does not let a keyboard
-     * press another app's Send button otherwise). Ask once, with a direct link.
+     * Android 13+ blocks accessibility for sideloaded APKs ("Restricted setting").
+     * Show the exact way out, plus the App-info shortcut where the toggle lives.
      */
-    private fun offerAutoSendHelper() {
-        if (prefs.helperAsked) return
-        if (AutoSendService.isEnabled(this)) return
-        if (store.all().isEmpty()) return
-        prefs.helperAsked = true
+    private fun showRestrictedHelp() {
         AlertDialog.Builder(this)
-            .setTitle(R.string.helper_dialog_title)
-            .setMessage(R.string.helper_dialog_msg)
-            .setPositiveButton(R.string.helper_dialog_enable) { _, _ ->
+            .setTitle(R.string.restricted_title)
+            .setMessage(R.string.restricted_msg)
+            .setPositiveButton(R.string.open_app_info) { _, _ ->
                 try {
-                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                    toast(getString(R.string.accessibility_hint))
+                    val intent = Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivity(intent)
                 } catch (error: Exception) {
                     toast(getString(R.string.accessibility_hint))
                 }
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.accessibility_button) { _, _ ->
+                try {
+                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                } catch (error: Exception) {
+                    toast(getString(R.string.accessibility_hint))
+                }
+            }
+            .setNeutralButton(R.string.cancel, null)
             .show()
     }
 
