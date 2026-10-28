@@ -53,6 +53,8 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     private lateinit var tgCaps: TextView
     private lateinit var tgAutoSend: TextView
     private lateinit var tgShuffle: TextView
+    private lateinit var tgScreenOn: TextView
+    private lateinit var tgLoop2: TextView
     private lateinit var tvAccessibilityState: TextView
     private lateinit var tvDiag: TextView
 
@@ -95,6 +97,8 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgCaps = findViewById(R.id.tgCaps)
         tgAutoSend = findViewById(R.id.tgAutoSend)
         tgShuffle = findViewById(R.id.tgShuffle)
+        tgScreenOn = findViewById(R.id.tgScreenOn)
+        tgLoop2 = findViewById(R.id.tgLoop2)
         tvAccessibilityState = findViewById(R.id.tvAccessibilityState)
         tvDiag = findViewById(R.id.tvDiag)
 
@@ -182,6 +186,16 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             updateToggles()
             toast(getString(if (prefs.autoSend) R.string.auto_send_on else R.string.auto_send_off))
         }
+        tgScreenOn.setOnClickListener {
+            prefs.keepScreenAwake = !prefs.keepScreenAwake
+            updateToggles()
+            toast(getString(if (prefs.keepScreenAwake) R.string.keep_awake_on else R.string.keep_awake_off))
+        }
+        tgLoop2.setOnClickListener {
+            prefs.loop = !prefs.loop
+            updateToggles()
+            toast(getString(if (prefs.loop) R.string.tb_loop_on else R.string.tb_loop_off))
+        }
         tgShuffle.setOnClickListener {
             prefs.shuffle = !prefs.shuffle
             updateToggles()
@@ -195,6 +209,8 @@ class MainActivity : Activity(), NotesAdapter.Callback {
         tgLoop.isSelected = prefs.loop
         tgVoice.isSelected = prefs.voiceEnabled
         tgLetters.isSelected = prefs.letterByLetter
+        tgScreenOn.isSelected = prefs.keepScreenAwake
+        tgLoop2.isSelected = prefs.loop
         tgCaps.isSelected = prefs.capsMode
         tgAutoSend.isSelected = prefs.autoSend
         tgShuffle.isSelected = prefs.shuffle

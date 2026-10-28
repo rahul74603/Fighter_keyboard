@@ -5,6 +5,7 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.text.InputType
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -99,6 +100,7 @@ class FighterKeyboardService : InputMethodService(),
     private var playbackServiceStarted = false
     private var sendHelpShown = false
     private var pausedNoticeShown = false
+    private var screenLock: PowerManager.WakeLock? = null
     private var lastTypedText = ""
     private var lastProgressAt = 0L
     private val watchdog = object : Runnable {
@@ -177,6 +179,7 @@ class FighterKeyboardService : InputMethodService(),
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
         if (playbackActive && !speaker.isRunning) {
+            keepScreenAwake()
             player.resumeTimers()
             updatePlaybackNotification()
         }
@@ -659,6 +662,36 @@ class FighterKeyboardService : InputMethodService(),
         toast(getString(R.string.notif_paused_hidden))
     }
 
+    /**
+     * Screen ko jagna rakhna: most "background" problems isi se aate hain -
+     * screen apne aap off hoti hai, phone lock ho jata hai aur typing ruk jati hai.
+     */
+    private fun keepScreenAwake() {
+        if (!prefs.keepScreenAwake) return
+        try {
+            if (screenLock == null) {
+                val power = getSystemService(POWER_SERVICE) as PowerManager
+                screenLock = power.newWakeLock(
+                    @Suppress("DEPRECATION")
+                    PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE,
+                    "FighterStudy::Typing"
+                ).apply { setReferenceCounted(false) }
+            }
+            screenLock?.takeIf { !it.isHeld }?.acquire(MAX_SCREEN_LOCK_MS)
+            DebugLog.log("Playback", "screen kept awake")
+        } catch (error: Exception) {
+            DebugLog.log("Playback", error)
+        }
+    }
+
+    private fun releaseScreenAwake() {
+        try {
+            screenLock?.takeIf { it.isHeld }?.release()
+        } catch (error: Exception) {
+            // ignore
+        }
+    }
+
     /** Starts the note that is currently at [queueIndex]. */
     private fun beginQueueItem(retry: Int = 0) {
         if (!playbackActive || queueIndex >= queue.size) return
@@ -827,6 +860,7 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun finishPlayback() {
         if (queue.size > 0) toast(getString(R.string.all_notes_sent, queue.size))
+        releaseScreenAwake()
         playbackActive = false
         PlaybackService.stop(this)
         PlaybackService.stopRequested = null
@@ -858,6 +892,7 @@ class FighterKeyboardService : InputMethodService(),
     }
 
     private fun stopPlayback() {
+        releaseScreenAwake()
         playbackActive = false
         queueTexts.clear()
         queueHandler.removeCallbacks(watchdog)
@@ -1097,6 +1132,7 @@ class FighterKeyboardService : InputMethodService(),
         const val CONNECTION_RETRY_MS = 400L
         const val AUTOPILOT_RETRIES = 6
         const val AUTOPILOT_DELAY_MS = 700L
+        const val MAX_SCREEN_LOCK_MS = 4 * 60 * 60 * 1000L
         const val STALL_MS = 9000L
     }
 }

@@ -56,6 +56,11 @@ class PlayerPrefs(context: Context) {
         get() = prefs.getBoolean(KEY_HELPER_ASKED, false)
         set(value) = prefs.edit().putBoolean(KEY_HELPER_ASKED, value).apply()
 
+    /** Play ke dauraan screen ko band hone se rokna (auto-lock se bachne ke liye). */
+    var keepScreenAwake: Boolean
+        get() = prefs.getBoolean(KEY_KEEP_AWAKE, true)
+        set(value) = prefs.edit().putBoolean(KEY_KEEP_AWAKE, value).apply()
+
     var lastNoteId: String?
         get() = prefs.getString(KEY_LAST_NOTE, null)
         set(value) = prefs.edit().putString(KEY_LAST_NOTE, value).apply()
@@ -80,5 +85,6 @@ class PlayerPrefs(context: Context) {
         private const val KEY_SHUFFLE = "shuffle"
         private const val KEY_STUDY_AUTO = "study_auto_next"
         private const val KEY_HELPER_ASKED = "helper_asked"
+        private const val KEY_KEEP_AWAKE = "keep_screen_awake"
     }
 }

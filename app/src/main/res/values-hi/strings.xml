@@ -135,6 +135,10 @@
     <string name="all_notes_sent">सारे %1$d नोट भेज दिए ✓ (लूप ON करें तो फिर चलेंगे)</string>
     <string name="autopilot_sent">ऑटो-पायलट: नोट भेज दिया ✓</string>
     <string name="autopilot_hint">बैकग्राउंड सेंड के लिए: ऐप सामने रखें + ऑटो-सेंड हेल्पर ON (एक्सेसिबिलिटी)। स्क्रीन बंद/लॉक में Android कीबोर्ड को टाइप करने नहीं देता।</string>
+    <string name="keep_awake">स्क्रीन ON</string>
+    <string name="keep_awake_on">स्क्रीन ON रहेगी — प्ले के दौरान फोन स्लीप नहीं करेगा</string>
+    <string name="keep_awake_off">स्क्रीन ON बंद — फोन सामान्य रूप से स्लीप करेगा</string>
+    <string name="bg_explain">नोट: फोन लॉक या ऐप छोटा होने पर कोई भी कीबोर्ड टाइप नहीं कर सकता (Android नियम)। इसलिए “स्क्रीन ON” चालू रखें और चैट स्क्रीन सामने छोड़ दें — मैसेज लगातार चलते रहेंगे।</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>
