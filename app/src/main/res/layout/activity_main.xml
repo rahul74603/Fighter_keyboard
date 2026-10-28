@@ -90,6 +90,12 @@
             style="@style/AppButtonGhost"
             android:text="@string/fix_voice_test"
             android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnOpenLog"
+            style="@style/AppButtonGhost"
+            android:text="@string/log_title"
+            android:textSize="10sp" />
     </LinearLayout>
 
     <LinearLayout

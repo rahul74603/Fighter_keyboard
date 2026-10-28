@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v1.9.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v2.0.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,11 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## v2.0 — Internet fix + log
+
+- **Browser fix**: manifest me `INTERNET` + `ACCESS_NETWORK_STATE` permission missing tha — isliye browser me “internet nahi chal raha” tha. Ab add hai, saath me network check + error code.
+- **Log screen** (`Log` button app me): TTS engine state, background service start/stop, har note, send ka kaunsa tarika chala, browser load/error — sab timestamp ke saath. **Copy** karke bhej sakte ho.
 
 ## Test & Fix (app me) — v1.9
 

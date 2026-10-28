@@ -28,6 +28,7 @@ import com.fighter.studykeyboard.play.AutoSendService
 import com.fighter.studykeyboard.play.StudyPlaybackService
 import com.fighter.studykeyboard.play.TextTools
 import com.fighter.studykeyboard.ui.NotesAdapter
+import com.fighter.studykeyboard.util.DebugLog
 
 /**
  * Setup + note manager. The keyboard itself lives in [FighterKeyboardService],
@@ -117,6 +118,9 @@ class MainActivity : Activity(), NotesAdapter.Callback {
             startActivity(Intent(this, StudyActivity::class.java))
         }
         findViewById<View>(R.id.btnBattery).setOnClickListener { requestBatteryExemption() }
+        findViewById<View>(R.id.btnOpenLog).setOnClickListener {
+            startActivity(Intent(this, LogActivity::class.java))
+        }
         findViewById<View>(R.id.btnVoiceTest).setOnClickListener {
             StudyPlaybackService.command(this, StudyPlaybackService.ACTION_TEST)
             toast(getString(R.string.study_testing_voice))
@@ -217,6 +221,7 @@ class MainActivity : Activity(), NotesAdapter.Callback {
     override fun onResume() {
         super.onResume()
         askNotificationPermission()
+        DebugLog.log("App", "resumed")
         refresh()
     }
 

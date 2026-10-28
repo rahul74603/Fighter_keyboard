@@ -26,6 +26,7 @@ import com.fighter.studykeyboard.play.ReadingPlayer
 import com.fighter.studykeyboard.play.SpeechSpeaker
 import com.fighter.studykeyboard.play.TextTools
 import com.fighter.studykeyboard.ui.NotesAdapter
+import com.fighter.studykeyboard.util.DebugLog
 
 /**
  * Fighter Study Keyboard.
@@ -95,6 +96,7 @@ class FighterKeyboardService : InputMethodService(),
     private var itemFinished = false
     private var playbackActive = false
     private var playbackServiceStarted = false
+    private var warnedAboutHelper = false
     private var lastTypedText = ""
     private var lastProgressAt = 0L
     private val watchdog = object : Runnable {
@@ -435,11 +437,22 @@ class FighterKeyboardService : InputMethodService(),
     private fun performAutoSend(): Boolean {
         if (!playbackActive) return false
         try {
-            if (AutoSendService.isEnabled(this) && AutoSendService.requestSend()) return true
-            if (triggerEditorSend()) return true
+            val helperOn = AutoSendService.isEnabled(this)
+            if (helperOn && AutoSendService.requestSend()) {
+                DebugLog.log("Send", "sent via accessibility button")
+                return true
+            }
+            if (triggerEditorSend()) {
+                DebugLog.log("Send", "sent via IME action")
+                return true
+            }
+            DebugLog.log(
+                "Send",
+                "fallback Enter (helper=$helperOn instance=${AutoSendService.instance != null})"
+            )
             currentInputConnection?.commitText("\n", 1)
         } catch (error: Exception) {
-            // never let a send attempt kill the queue
+            DebugLog.log("Send", error)
         }
         return false
     }
@@ -500,6 +513,10 @@ class FighterKeyboardService : InputMethodService(),
 
     private fun startPlayback(note: Note? = null, playAll: Boolean = false) {
         stopPlayback()
+        if (prefs.autoSend && !AutoSendService.isEnabled(this) && !warnedAboutHelper) {
+            warnedAboutHelper = true
+            toast(getString(R.string.send_helper_hint))
+        }
         val notes = store.all()
         if (notes.isEmpty()) {
             toast(getString(R.string.no_notes_hint))
@@ -524,6 +541,7 @@ class FighterKeyboardService : InputMethodService(),
 
         queue.clear()
         ordered.forEach { queue.add(applyCapsMode(it.text)) }
+        DebugLog.log("Playback", "start queue=${queue.size} caps=${prefs.capsMode} voice=${prefs.voiceEnabled} autoSend=${prefs.autoSend}")
         queueIndex = 0
         itemFinished = false
         playbackActive = true
@@ -611,6 +629,7 @@ class FighterKeyboardService : InputMethodService(),
     private fun proceedToNextItem() {
         if (!playbackActive) return
         queueIndex++
+        DebugLog.log("Playback", "next item ${queueIndex + 1}/${queue.size}")
         when {
             queueIndex < queue.size ->
                 queueHandler.postDelayed({ beginQueueItem() }, NEXT_NOTE_DELAY_MS)

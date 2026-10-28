@@ -2,6 +2,9 @@ package com.fighter.studykeyboard
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -21,6 +24,7 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import com.fighter.studykeyboard.util.DebugLog
 
 /**
  * In-app browser: log in once (Facebook / YouTube / any site) and use the
@@ -95,7 +99,10 @@ class BrowserActivity : Activity() {
         }
 
         updateDesktopChip()
-        loadUrl(intent.getStringExtra(EXTRA_URL) ?: HOME_URL)
+        DebugLog.log("Browser", "opened")
+        val target = intent.getStringExtra(EXTRA_URL) ?: HOME_URL
+        if (!hasNetwork()) showHint(getString(R.string.br_no_network))
+        loadUrl(target)
     }
 
     private fun configureWebView() {
@@ -136,6 +143,7 @@ class BrowserActivity : Activity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                DebugLog.log("Browser", "finished ${url?.take(60)}")
                 progress.visibility = View.GONE
                 CookieManager.getInstance().flush()
                 if (!url.isNullOrBlank() && !url.startsWith("about:")) addressBar.setText(url)
@@ -158,7 +166,8 @@ class BrowserActivity : Activity() {
                 super.onReceivedError(view, request, error)
                 progress.visibility = View.GONE
                 if (request?.isForMainFrame == true) {
-                    showHint(getString(R.string.br_load_error))
+                    DebugLog.log("Browser", "error ${error?.errorCode} ${error?.description}")
+                    showHint(getString(R.string.br_load_error) + " (${error?.errorCode})")
                 }
             }
 
@@ -227,11 +236,23 @@ class BrowserActivity : Activity() {
         }
         addressBar.setText(url)
         tvHint.visibility = View.GONE
+        DebugLog.log("Browser", "load $url (net=${hasNetwork()})")
         try {
             webView.loadUrl(url)
         } catch (error: Exception) {
             showHint(getString(R.string.br_load_error))
             openExternally(url)
+        }
+    }
+
+    private fun hasNetwork(): Boolean {
+        return try {
+            val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = manager.activeNetwork ?: return false
+            val caps = manager.getNetworkCapabilities(network) ?: return false
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (error: Exception) {
+            true
         }
     }
 

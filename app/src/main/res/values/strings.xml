@@ -117,6 +117,17 @@ phir yahan tap karke check karo</string>
     <string name="diag_no">OFF</string>
     <string name="battery_ok">Background chalega ✓</string>
     <string name="battery_hint">Settings me “Fighter Study Keyboard” ko “No restrictions / Don’t optimise” karo</string>
+    <string name="log_title">Log / problem report</string>
+    <string name="log_facts">App %1$s • Auto-send helper: %2$s • Accessibility ON: %3$s</string>
+    <string name="log_empty">Abhi koi entry nahi. Thodi der app use karo, phir Refresh dabao.</string>
+    <string name="log_refresh">Refresh</string>
+    <string name="log_copy">Copy</string>
+    <string name="log_clear">Clear</string>
+    <string name="log_copied">Log copy ho gaya — paste karke bhej do</string>
+    <string name="log_cleared">Log clear ho gaya</string>
+    <string name="log_button">Log dekho (test report)</string>
+    <string name="br_no_network">Internet nahi hai. Wi-Fi/mobile data on karo.</string>
+    <string name="send_helper_hint">Auto-send ke liye app me “3. Auto-send ON karo” dabao (Send button mil jayega)</string>
     <string name="notes_title">My notes</string>
     <string name="notes_count_title">My notes (%1$d)</string>
     <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>

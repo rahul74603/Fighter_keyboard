@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.fighter.studykeyboard.util.DebugLog
 import java.util.Locale
 
 /**
@@ -65,6 +66,7 @@ class SpeechSpeaker(context: Context) {
     }
 
     private fun onEngineReady(status: Int) {
+        DebugLog.log("TTS", "engine ready status=$status")
         if (status != TextToSpeech.SUCCESS) {
             ready = false
             listener?.onSpeechUnavailable("Text-to-speech is not available on this device")
@@ -105,6 +107,7 @@ class SpeechSpeaker(context: Context) {
         }
 
         override fun onError(id: String?, errorCode: Int) {
+            DebugLog.log("TTS", "error id=$id code=$errorCode")
             main.post {
                 if (id != utteranceId) return@post
                 isRunning = false
@@ -156,6 +159,7 @@ class SpeechSpeaker(context: Context) {
         rate = speechRate.coerceIn(0.3f, 3.0f)
         loop = loopPlayback
         if (text.isBlank()) return
+        DebugLog.log("TTS", "start rate=$rate chars=${text.length}")
         if (!ready) {
             // Engine still warming up: remember the request and speak as soon as ready.
             pendingStart = true
@@ -172,6 +176,7 @@ class SpeechSpeaker(context: Context) {
         utteranceId = "fk-$counter"
         ensureLanguageFor(text)
         tts.setSpeechRate(rate)
+        DebugLog.log("TTS", "speak $utteranceId lang=${tts.voice?.locale}")
         isRunning = true
         listener?.onSpeechStarted(text.length)
         listener?.onSpeechStateChanged()

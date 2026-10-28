@@ -17,6 +17,7 @@ import com.fighter.studykeyboard.StudyActivity
 import com.fighter.studykeyboard.data.Note
 import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.util.DebugLog
 
 /**
  * Full background study playback.
@@ -55,8 +56,13 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        DebugLog.log("StudyService", "start action=${intent?.action}")
         ensureChannel()
-        ensureForeground()
+        try {
+            ensureForeground()
+        } catch (error: Exception) {
+            DebugLog.log("StudyService", error)
+        }
         when (intent?.action) {
             ACTION_PLAY -> startSession(
                 playAll = intent.getBooleanExtra(EXTRA_PLAY_ALL, true),
@@ -85,6 +91,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
 
     private fun startSession(playAll: Boolean, noteId: String?) {
         val all = store.all()
+        DebugLog.log("StudyService", "startSession notes=${all.size} playAll=$playAll")
         if (all.isEmpty()) {
             PlaybackBridge.publish(PlaybackBridge.State(status = getString(R.string.no_notes_hint)))
             stopSession()
@@ -114,6 +121,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
         acquireWakeLock()
         publish(getString(R.string.study_listening), 0, 0)
         updateNotification(getString(R.string.study_listening))
+        DebugLog.log("StudyService", "speak note ${index + 1}/${notes.size} ttsReady=${speaker?.isReady}")
         speaker?.start(currentText, prefs.speechRate, false)
     }
 
@@ -155,6 +163,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     }
 
     private fun stopSession() {
+        DebugLog.log("StudyService", "stopSession")
         handler.removeCallbacksAndMessages(null)
         playing = false
         paused = false
@@ -172,6 +181,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     // ------------------------------------------------------------------ speech callbacks
 
     override fun onSpeechStarted(charCount: Int) {
+        DebugLog.log("StudyService", "speech started ($charCount chars)")
         playing = true
         paused = false
         publish(getString(R.string.study_listening), 0, 0)
@@ -183,6 +193,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     }
 
     override fun onSpeechDone() {
+        DebugLog.log("StudyService", "speech done, playing=$playing")
         if (!playing) return
         if (prefs.studyAutoNext && notes.size > 1) {
             publish(getString(R.string.study_check), 0, 0)
@@ -198,6 +209,7 @@ class StudyPlaybackService : Service(), SpeechSpeaker.Listener {
     }
 
     override fun onSpeechUnavailable(reason: String) {
+        DebugLog.log("StudyService", "speech unavailable: $reason (retry $ttsRetries)")
         if (ttsRetries < MAX_TTS_RETRIES) {
             ttsRetries++
             publish(getString(R.string.study_starting_voice), 0, 0)

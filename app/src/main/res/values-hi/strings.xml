@@ -111,6 +111,17 @@
     <string name="diag_no">OFF</string>
     <string name="battery_ok">बैकग्राउंड चलेगा ✓</string>
     <string name="battery_hint">सेटिंग में “फाइटर स्टडी कीबोर्ड” को “No restrictions / Don’t optimise” करें</string>
+    <string name="log_title">लॉग / रिपोर्ट</string>
+    <string name="log_facts">ऐप %1$s • ऑटो-सेंड हेल्पर: %2$s • एक्सेसिबिलिटी ON: %3$s</string>
+    <string name="log_empty">अभी कोई एंट्री नहीं। थोड़ी देर ऐप चलाएँ, फिर Refresh दबाएँ।</string>
+    <string name="log_refresh">रिफ्रेश</string>
+    <string name="log_copy">कॉपी</string>
+    <string name="log_clear">क्लियर</string>
+    <string name="log_copied">लॉग कॉपी हो गया — पेस्ट करके भेजें</string>
+    <string name="log_cleared">लॉग क्लियर हो गया</string>
+    <string name="log_button">लॉग देखें (टेस्ट रिपोर्ट)</string>
+    <string name="br_no_network">इंटरनेट नहीं है। वाई-फाई/मोबाइल डेटा चालू करें।</string>
+    <string name="send_helper_hint">ऑटो-सेंड के लिए ऐप में “3. ऑटो-सेंड ON करें” दबाएँ (Send बटन मिल जाएगा)</string>
     <string name="notes_title">मेरे नोट्स</string>
     <string name="notes_count_title">मेरे नोट्स (%1$d)</string>
     <string name="notes_empty">अभी कोई नोट नहीं है।\n“+ नोट जोड़ें” दबाकर अपना पाठ पेस्ट या टाइप करें।</string>

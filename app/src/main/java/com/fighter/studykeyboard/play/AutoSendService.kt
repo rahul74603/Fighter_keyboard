@@ -6,6 +6,7 @@ import android.provider.Settings
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.fighter.studykeyboard.util.DebugLog
 
 /**
  * Optional helper that clicks the real "Send" button of the app that is in front.
@@ -22,6 +23,7 @@ class AutoSendService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
+        DebugLog.log("AutoSend", "service connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
@@ -29,6 +31,7 @@ class AutoSendService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
+        DebugLog.log("AutoSend", "service destroyed")
         if (instance === this) instance = null
         super.onDestroy()
     }
@@ -50,12 +53,14 @@ class AutoSendService : AccessibilityService() {
             }
             if (root != null && root !in roots) roots.add(root)
         }
+        DebugLog.log("AutoSend", "searching send button in ${roots.size} window(s)")
         for (root in roots) {
             val node = findSendNode(root, 0)
             if (node != null) {
                 val parent = node.parent
                 val clicked = node.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
                     (parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false)
+                DebugLog.log("AutoSend", "clicked id=${node.viewIdResourceName} desc=${node.contentDescription} ok=$clicked")
                 if (clicked) return true
             }
         }
