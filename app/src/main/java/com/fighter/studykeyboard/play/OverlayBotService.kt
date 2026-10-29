@@ -167,7 +167,8 @@ class OverlayBotService : Service() {
         header.addView(close)
         statusView = status
 
-        val view = WebView(this).apply {
+        val overlayWebView = WebView(this)
+        val view = overlayWebView.apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 dp(260)
@@ -186,7 +187,7 @@ class OverlayBotService : Service() {
                 cacheMode = WebSettings.LOAD_DEFAULT
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
-                    CookieManager.getInstance().setAcceptThirdPartyCookies(this@apply, true)
+                    CookieManager.getInstance().setAcceptThirdPartyCookies(overlayWebView, true)
                 }
             }
             CookieManager.getInstance().setAcceptCookie(true)
