@@ -1,6 +1,7 @@
 package com.fighter.studykeyboard
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.net.ConnectivityManager
@@ -8,6 +9,7 @@ import android.net.NetworkCapabilities
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.Settings
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -29,6 +31,7 @@ import com.fighter.studykeyboard.data.NoteStore
 import com.fighter.studykeyboard.data.PlayerPrefs
 import com.fighter.studykeyboard.play.BrowserBot
 import com.fighter.studykeyboard.play.BrowserBotService
+import com.fighter.studykeyboard.play.OverlayBotService
 import com.fighter.studykeyboard.util.DebugLog
 
 /**
@@ -138,6 +141,7 @@ class BrowserActivity : Activity() {
             toast(getString(R.string.bot_learn_send))
         }
         findViewById<View>(R.id.btnBotTest).setOnClickListener { runBotTest() }
+        findViewById<View>(R.id.btnOverlayBot).setOnClickListener { startOverlayBot() }
         findViewById<View>(R.id.btnBotStart).setOnClickListener {
             if (NoteStore.get(this).all().isEmpty()) {
                 toast(getString(R.string.no_notes_hint))
@@ -152,6 +156,37 @@ class BrowserActivity : Activity() {
             updateBotStatus()
         }
         updateBotStatus()
+    }
+
+    /**
+     * The real background bot: its own WebView inside a floating overlay window,
+     * so Chromium does not freeze the page when the app goes to the background.
+     */
+    private fun startOverlayBot() {
+        val url = webView.url ?: prefs?.botUrl
+        prefs?.botUrl = url
+        if (!OverlayBotService.hasPermission(this)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.overlay_permission_title)
+                .setMessage(R.string.overlay_permission_msg)
+                .setPositiveButton(R.string.overlay_permission_allow) { _, _ ->
+                    try {
+                        startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:$packageName")
+                            )
+                        )
+                    } catch (error: Exception) {
+                        toast(getString(R.string.overlay_permission_msg))
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            return
+        }
+        OverlayBotService.start(this, url)
+        toast(getString(R.string.overlay_bot_started))
     }
 
     /** Sends exactly one note so the user can check the selectors. */
@@ -190,7 +225,9 @@ class BrowserActivity : Activity() {
                     p.botSendSelector = selector
                     toast(getString(R.string.bot_saved_send))
                 }
-                DebugLog.log("Browser", "picked $kind -> $selector")
+                // Remember the page, so the floating background bot opens the same one.
+                prefs?.botUrl = webView.url
+                DebugLog.log("Browser", "picked $kind -> $selector on ${webView.url}")
             }
         }
 

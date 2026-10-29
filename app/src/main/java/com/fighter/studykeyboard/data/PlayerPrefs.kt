@@ -70,6 +70,11 @@ class PlayerPrefs(context: Context) {
         get() = prefs.getString(KEY_BOT_SEND, null)
         set(value) = prefs.edit().putString(KEY_BOT_SEND, value).apply()
 
+    /** Bot jis page par set kiya gaya (overlay bot isi page ko kholta hai). */
+    var botUrl: String?
+        get() = prefs.getString(KEY_BOT_URL, null)
+        set(value) = prefs.edit().putString(KEY_BOT_URL, value).apply()
+
     var lastNoteId: String?
         get() = prefs.getString(KEY_LAST_NOTE, null)
         set(value) = prefs.edit().putString(KEY_LAST_NOTE, value).apply()
@@ -97,5 +102,6 @@ class PlayerPrefs(context: Context) {
         private const val KEY_KEEP_AWAKE = "keep_screen_awake"
         private const val KEY_BOT_INPUT = "bot_input_selector"
         private const val KEY_BOT_SEND = "bot_send_selector"
+        private const val KEY_BOT_URL = "bot_url"
     }
 }

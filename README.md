@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v2.5.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v2.6.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,13 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## v2.6 — Floating background bot (ye asli background hai)
+
+Problem: app background me jate hi WebView ka JavaScript Chromium **freeze** kar deta hai → bot ruk jata hai.
+Fix: **OverlayBotService** — bot ka apna WebView ek **floating overlay window** me (foreground service ke andar). Overlay window visible rehti hai, isliye JS chalta rehta hai: **app minimise, back, screen lock — bot kaam karta rehta hai**.
+
+Steps: Browser → Bot → selectors sikhao (Box chuno / Send chuno) → **Background bot** dabao → "Display over other apps" allow → floating window khul jayegi → screen lock kar do. Notification me Stop.
 
 ## v2.5 — Browser bot (background me send, app ke andar)
 

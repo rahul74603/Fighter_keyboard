@@ -11,8 +11,8 @@ android {
         applicationId = "com.fighter.studykeyboard"
         minSdk = 21
         targetSdk = 34
-        versionCode = 16
-        versionName = "2.5"
+        versionCode = 17
+        versionName = "2.6"
     }
 
     // Fixed signing key so every build updates the previous install in place
