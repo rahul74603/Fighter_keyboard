@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/note_card_dark"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="6dp"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/kb_text"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/kb_text_dim"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnPlayNote"
+        style="@style/NoteActionDark"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="@string/play" />
+
+    <TextView
+        android:id="@+id/btnEditNote"
+        style="@style/NoteActionDark"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="@string/edit" />
+
+    <TextView
+        android:id="@+id/btnDeleteNote"
+        style="@style/NoteActionDark"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="@string/delete" />
+</LinearLayout>

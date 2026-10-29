@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fighter Study Keyboard</string>
+    <string name="app_title">Fighter Study Keyboard</string>
+    <string name="app_subtitle">Unlimited notes • auto play word by word • speed control</string>
+    <string name="ime_name">Fighter Study Keyboard</string>
+    <string name="subtype_english">English (Study)</string>
+    <string name="subtype_hindi">Hindi (Study)</string>
+
+    <!-- Toolbar -->
+    <string name="tb_notes">Notes</string>
+    <string name="tb_play">Play</string>
+    <string name="tb_pause">Pause</string>
+    <string name="tb_stop">Stop</string>
+    <string name="tb_loop">Loop</string>
+    <string name="tb_voice">Voice</string>
+    <string name="tb_more">More</string>
+    <string name="tb_caps">T</string>
+    <string name="tb_shuffle">Shuffle</string>
+    <string name="caps_on">T-mode ON: everything in CAPITALS</string>
+    <string name="caps_off">T-mode OFF: normal typing</string>
+    <string name="shuffle_on">Shuffle ON: random note every time</string>
+    <string name="shuffle_off">Shuffle OFF: notes in order</string>
+    <string name="auto_send">Auto-send</string>
+    <string name="auto_send_on">Auto-send ON: Enter dabega har note ke baad</string>
+    <string name="auto_send_off">Auto-send OFF: khud send karna padega</string>
+    <string name="tb_loop_on">Loop ON</string>
+    <string name="tb_loop_off">Loop OFF</string>
+    <string name="tb_voice_on">Voice mode ON</string>
+    <string name="tb_voice_off">Voice mode OFF</string>
+    <string name="tb_notes_count">Notes %1$d</string>
+
+    <!-- Status -->
+    <string name="status_idle">Ready • %1$d notes • %2$d words</string>
+    <string name="status_paused">Paused • tap Pause to resume</string>
+    <string name="status_speaking">Speaking aloud…</string>
+    <string name="status_checking">Checking keyboard status…</string>
+    <string name="status_selected">Keyboard is ON and selected. Open any app, tap a text field and the Fighter keyboard will appear.</string>
+    <string name="status_enabled_only">Keyboard is enabled but not selected yet. Tap “2. Choose keyboard” and pick Fighter Study Keyboard.</string>
+    <string name="enable_hint">Find Fighter Study Keyboard in the list and turn it ON</string>
+    <string name="preview_started">Preview typing below…</string>
+    <string name="status_disabled">Keyboard is NOT enabled yet. Tap “1. Enable keyboard”, turn on Fighter Study Keyboard, then tap “2. Choose keyboard”.</string>
+    <string name="player_status">%1$d/%2$d • %3$s</string>
+
+    <!-- Speed -->
+    <string name="speed_label">Speed</string>
+    <string name="speed_type_value">%1$d ms/word</string>
+    <string name="speed_voice_value">%1$.1f× voice</string>
+
+    <!-- Keys -->
+    <string name="key_del">DEL</string>
+    <string name="key_shift">SHIFT</string>
+    <string name="key_space">space</string>
+    <string name="key_enter">Enter</string>
+    <string name="key_symbols">\?123</string>
+    <string name="key_letters">ABC</string>
+
+    <!-- Notes -->
+    <string name="letter_by_letter">Letter by letter</string>
+    <string name="toggle_caps">T-mode (CAPS)</string>
+    <string name="notif_permission_hint">Notification allow karo taaki background play ka control mile</string>
+    <string name="notif_paused_hidden">Typing paused • keyboard wapas aate hi chalu</string>
+    <string name="open_browser">Browser kholo (login + play)</string>
+    <string name="browser_title">Browser</string>
+    <string name="br_back">◀</string>
+    <string name="br_forward">▶</string>
+    <string name="br_reload">⟳</string>
+    <string name="br_home">Home</string>
+    <string name="br_address_hint">Website ya search…</string>
+    <string name="br_hint">Yahan login karo, phir comment/msg box pe tap karke keyboard ka Play dabao. Typing mode me browser saamne rehna chahiye (Android ka rule).</string>
+    <string name="accessibility_button">3. Auto-send ON karo (Send button)</string>
+    <string name="accessibility_summary">Sirf aapke Play dabane par app ka Send button dabata hai</string>
+    <string name="accessibility_description">Fighter Study Keyboard ko app ka Send/Post button dhoondh kar dabane deta hai, taaki har note khud send ho jaye. Ye service sirf Play chalte waqt use hoti hai; screen ka data kahin save ya upload nahi hota.</string>
+    <string name="accessibility_hint">List me “Fighter Study Keyboard” chuno aur ON karo</string>
+    <string name="accessibility_on">Auto-send helper ON hai ✓</string>
+    <string name="accessibility_off">Auto-send helper OFF hai (Enter = nayi line ho sakti hai)</string>
+    <string name="study_mode">Study / Test mode (voice)</string>
+    <string name="study_progress">Note %1$d/%2$d • %3$d words</string>
+    <string name="study_hide">Hide text</string>
+    <string name="study_auto_next">Auto next</string>
+    <string name="study_screen_on">Screen on</string>
+    <string name="study_prev">◀</string>
+    <string name="study_next">▶</string>
+    <string name="study_repeat">Repeat</string>
+    <string name="study_listening">Sun rahe hain… aankh band karke bolo</string>
+    <string name="study_check">Ab check karo: sahi yaad tha?</string>
+    <string name="study_paused">Paused</string>
+    <string name="study_hidden_title">🙈 Text chhupa hua hai</string>
+    <string name="study_hidden_hint">Pehle suno aur khud bolo,
+phir yahan tap karke check karo</string>
+    <string name="notif_study">Study mode • note %1$d/%2$d</string>
+    <string name="study_hint">Tip: screen off karke sun sakte ho (voice background me chalta hai), wapas on karne par wahi note dikhega.</string>
+    <string name="study_panel">Study</string>
+    <string name="study_background">Background me chalta rahega • notification se Stop kar sakte ho</string>
+    <string name="study_idle">Koi session nahi • Play dabao</string>
+    <string name="channel_study">Study playback</string>
+    <string name="channel_study_desc">Background me notes bolte rehte hain</string>
+    <string name="notif_study_ready">Study mode ready</string>
+    <string name="background_play">Background play (screen off)</string>
+    <string name="background_started">Background me chalu • screen lock kar sakte ho</string>
+    <string name="br_open_app">App me</string>
+    <string name="br_quick_fb">Facebook</string>
+    <string name="br_quick_yt">YouTube</string>
+    <string name="br_quick_google">Google</string>
+    <string name="br_desktop">Desktop</string>
+    <string name="br_load_error">Page load nahi hua. Net check karo, ya “App me” se normal browser me kholo.</string>
+    <string name="br_webview_missing">Is phone me WebView nahi hai, page normal browser me khol rahe hain</string>
+    <string name="send_retry_hint">Send button nahi mila — app settings me “3. Auto-send” ON karo</string>
+    <string name="study_starting_voice">Voice engine start ho raha hai…</string>
+    <string name="study_testing_voice">Voice test chal raha hai…</string>
+    <string name="tts_test_text">Namaste, ye Fighter Study Keyboard ka voice test hai. Ek do teen, char panch.</string>
+    <string name="fix_battery">Battery se chhoot do (background ke liye zaroori)</string>
+    <string name="fix_voice_test">Voice test</string>
+    <string name="diag_title">Test &amp; fix</string>
+    <string name="diag_status">Notification: %1$s • Accessibility: %2$s • Battery free: %3$s</string>
+    <string name="diag_yes">ON</string>
+    <string name="diag_no">OFF</string>
+    <string name="battery_ok">Background chalega ✓</string>
+    <string name="battery_hint">Settings me “Fighter Study Keyboard” ko “No restrictions / Don’t optimise” karo</string>
+    <string name="log_title">Log / problem report</string>
+    <string name="log_facts">App %1$s • Auto-send helper: %2$s • Accessibility ON: %3$s</string>
+    <string name="log_empty">Abhi koi entry nahi. Thodi der app use karo, phir Refresh dabao.</string>
+    <string name="log_refresh">Refresh</string>
+    <string name="log_copy">Copy</string>
+    <string name="log_clear">Clear</string>
+    <string name="log_copied">Log copy ho gaya — paste karke bhej do</string>
+    <string name="log_cleared">Log clear ho gaya</string>
+    <string name="log_button">Log dekho (test report)</string>
+    <string name="br_no_network">Internet nahi hai. Wi-Fi/mobile data on karo.</string>
+    <string name="send_helper_hint">Auto-send ke liye app me “3. Auto-send ON karo” dabao (Send button mil jayega)</string>
+    <string name="study_intro">Study mode shuru.</string>
+    <string name="helper_dialog_title">Send button ke liye ek setting</string>
+    <string name="helper_dialog_msg">WhatsApp/comment box me Enter nayi line daalta hai, send nahi karta.\n\nIsliye app ka asli Send button dabane ke liye accessibility helper chahiye. ON karo: Settings → Accessibility → Fighter Study Keyboard → ON.\n\nYe helper sirf aapke Play dabane par ek tap karta hai, screen data kahin save nahi hota.</string>
+    <string name="helper_dialog_enable">Abhi ON karo</string>
+    <string name="send_failed_hint">Auto-send nahi hua. Play ke baad message khud send karo — ya Settings → Apps → Fighter Study Keyboard → ⋮ → “Allow restricted settings” karke Auto-send helper ON karo.</string>
+    <string name="restricted_title">“Restricted setting” aa raha hai?</string>
+    <string name="restricted_msg">Android 13+ me APK se install hui app ko accessibility allow nahi karta jab tak aap khud allow na kare:\n\n1) Settings → Apps → Fighter Study Keyboard\n2) Upar 3 dots (⋮) dabao\n3) “Allow restricted settings” dabao\n4) Wapas Accessibility → Fighter Study Keyboard → ON\n\nAgar vivo/oppo me ⋮ me ye option na ho to Auto-send helper ke bina bhi sab chalta hai — keyboard Enter key aur Send action bhejta hai.</string>
+    <string name="restricted_help">Restricted setting kaise hataye?</string>
+    <string name="open_app_info">App info kholo</string>
+    <string name="play_started">%1$d notes chal rahe hain — ek-ek karke apne aap send honge</string>
+    <string name="all_notes_sent">Saare %1$d notes bhej diye ✓ (Loop ON karo to dobara chalenge)</string>
+    <string name="autopilot_sent">Auto-pilot: note bhej diya ✓</string>
+    <string name="autopilot_hint">Background send ke liye: app saamne rakho + Auto-send helper ON (accessibility). Screen off/lock me Android keyboard ko type karne nahi deta.</string>
+    <string name="keep_awake">Screen on</string>
+    <string name="keep_awake_on">Screen ON rahegi — Play ke dauraan phone sleep nahi karega</string>
+    <string name="keep_awake_off">Screen ON band — phone normal tareeke se sleep karega</string>
+    <string name="bg_explain">Note: phone lock ya app minimise hone par koi bhi keyboard type nahi kar sakta (Android rule). Isliye “Screen on” ON rakho aur chat screen saamne chhod do — messages lagatar chalte rahenge.</string>
+    <string name="bot">Bot</string>
+    <string name="bot_start">Start bot</string>
+    <string name="bot_stop">Stop bot</string>
+    <string name="bot_pick_input">Box chuno</string>
+    <string name="bot_pick_send">Send chuno</string>
+    <string name="bot_test">Test 1</string>
+    <string name="bot_learn_input">Ab comment/message BOX par tap karo</string>
+    <string name="bot_learn_send">Ab SEND button par tap karo</string>
+    <string name="bot_saved_input">Box yaad ho gaya ✓</string>
+    <string name="bot_saved_send">Send button yaad ho gaya ✓</string>
+    <string name="bot_info">Steps: 1) login karo  2) comment/message box par tap → “Box chuno”  3) Send button par tap → “Send chuno”  4) Start bot.\nYe sab app ke andar hi chalta hai — background me bhi, screen lock hone par bhi (notification me Stop).</string>
+    <string name="bot_started">Bot chalu — %1$d notes, ek-ek karke bhejega</string>
+    <string name="bot_starting">Bot start ho raha hai…</string>
+    <string name="bot_sending">Bhej raha hoon: %1$d/%2$d</string>
+    <string name="bot_sent">Bhej diya %1$d/%2$d</string>
+    <string name="bot_failed">Send nahi mila — “Send chuno” se button sikhayein</string>
+    <string name="bot_waiting_page">Page ka intezaar…</string>
+    <string name="bot_notification_title">Browser bot</string>
+    <string name="bot_test_result">Test: %1$s</string>
+    <string name="channel_bot">Browser bot</string>
+    <string name="channel_bot_desc">Browser ke andar notes bhejta rehta hai</string>
+    <string name="bot_background">Bot background me chalu hai • notification se Stop</string>
+    <string name="bot_test_ok">Test message chala gaya ✓</string>
+    <string name="bot_test_fail">Test fail: box/send selector check karo</string>
+    <string name="overlay_bot">Background bot</string>
+    <string name="overlay_bot_title">Fighter bot</string>
+    <string name="overlay_bot_loading">page load ho raha hai…</string>
+    <string name="overlay_bot_page_ready">page ready ✓</string>
+    <string name="overlay_bot_ready">bot chalu</string>
+    <string name="overlay_bot_running">Background bot chalu</string>
+    <string name="channel_overlay">Background bot</string>
+    <string name="channel_overlay_desc">Floating bot window — background me bhejta rehta hai</string>
+    <string name="overlay_permission_title">“Display over other apps” on karo</string>
+    <string name="overlay_permission_msg">Background bot ke liye ek chhoti floating window chahiye. Isse page ka JavaScript chalta rehta hai jab app background me ho ya phone lock ho.\n\nSettings → “Display over other apps” → Fighter Study Keyboard → Allow.\n\nWapas aakar “Background bot” dobara dabao.</string>
+    <string name="overlay_permission_allow">Setting kholo</string>
+    <string name="overlay_bot_started">Floating bot chalu — screen band kar sakte ho</string>
+    <string name="notes_title">My notes</string>
+    <string name="notes_count_title">My notes (%1$d)</string>
+    <string name="notes_empty">No notes yet.\nTap “+ Add note” and paste or type your study text.</string>
+    <string name="add_note">+ Add note</string>
+    <string name="edit_note">Edit note</string>
+    <string name="play_all">Play all</string>
+    <string name="play">Play</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Del</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="note_hint">Paste or type your study note here…</string>
+    <string name="note_empty">Note is empty</string>
+    <string name="paste">Paste</string>
+    <plurals name="note_word_count">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <string name="note_deleted">Note deleted</string>
+    <string name="delete_note">Delete note?</string>
+    <string name="delete_all">Delete all</string>
+    <string name="delete_all_msg">All notes will be deleted from this phone.</string>
+    <string name="no_notes_hint">No notes yet. Add a note first.</string>
+
+    <!-- Import / export -->
+    <string name="export_notes">Export</string>
+    <string name="import_notes">Import</string>
+    <string name="export_done">Notes copied to clipboard. Paste them anywhere for backup.</string>
+    <string name="import_done">%1$d notes imported</string>
+    <string name="import_failed">Clipboard does not contain valid notes</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
+
+    <!-- Setup -->
+    <string name="btn_enable">1. Enable keyboard</string>
+    <string name="btn_pick">2. Choose keyboard</string>
+    <string name="practice_hint">Practice here…</string>
+    <string name="how_to_tip">Tip: open Notes in the keyboard → + Add note → paste text → Play. Speed slider is above the keys.</string>
+
+    <!-- Voice -->
+    <string name="channel_playback">Playback</string>
+    <string name="channel_playback_desc">Shows what Fighter Study Keyboard is playing right now</string>
+    <string name="notif_title">Fighter Study Keyboard</string>
+    <string name="notif_playing">Playing your notes…</string>
+    <string name="notif_mode_voice">Voice mode • screen off par bhi chalta rahega</string>
+    <string name="notif_mode_typing">Typing mode • app khula rakho, words type hote rahenge</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_queue">Note %1$d/%2$d chalu hai</string>
+
+    <string name="voice_unavailable">Voice engine is not available on this device. Typing mode will be used.</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FighterKeyboard" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/app_bg</item>
+        <item name="android:colorAccent">@color/app_accent</item>
+        <item name="android:colorPrimary">@color/app_accent</item>
+        <item name="android:colorPrimaryDark">@color/app_accent_dark</item>
+        <item name="android:statusBarColor">@color/app_accent_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.FighterKeyboard.Study" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/study_bg</item>
+        <item name="android:colorAccent">@color/kb_accent</item>
+        <item name="android:statusBarColor">@color/study_bg</item>
+        <item name="android:navigationBarColor">@color/study_bg</item>
+    </style>
+
+    <style name="Theme.FighterKeyboard.Dialog" parent="@android:style/Theme.Material.Light.Dialog">
+        <item name="android:windowBackground">@color/app_surface</item>
+        <item name="android:colorAccent">@color/app_accent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowMinWidthMajor">92%</item>
+        <item name="android:windowMinWidthMinor">92%</item>
+    </style>
+</resources>

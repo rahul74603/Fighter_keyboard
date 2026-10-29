@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="key_row_height">46dp</dimen>
+    <dimen name="key_row_height_bottom">48dp</dimen>
+    <dimen name="keyboard_area_height">186dp</dimen>
+    <dimen name="keyboard_area_expanded">340dp</dimen>
+    <dimen name="toolbar_height">38dp</dimen>
+    <dimen name="status_height">28dp</dimen>
+    <dimen name="speed_row_height">30dp</dimen>
+    <dimen name="suggestion_height">36dp</dimen>
+</resources>

@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:fillViewport="true">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_bg"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_title"
+        android:textColor="@color/app_text"
+        android:textSize="21sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/app_subtitle"
+        android:textColor="@color/app_text_dim"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/tvKeyboardStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/status_bg"
+        android:paddingStart="12dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="9dp"
+        android:text="@string/status_checking"
+        android:textColor="@color/app_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/btnStudyMode"
+        style="@style/AppButtonPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="0"
+        android:text="@string/study_mode"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/btnBackgroundPlay"
+        style="@style/AppButtonSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_weight="0"
+        android:background="@drawable/app_btn_secondary"
+        android:text="@string/background_play" />
+
+    <TextView
+        android:id="@+id/tvDiag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/app_text_dim"
+        android:textSize="10sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnBattery"
+            style="@style/AppButtonGhost"
+            android:text="@string/fix_battery"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnVoiceTest"
+            style="@style/AppButtonGhost"
+            android:text="@string/fix_voice_test"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnOpenLog"
+            style="@style/AppButtonGhost"
+            android:text="@string/log_title"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnAccessibility"
+            style="@style/AppButtonSecondary"
+            android:layout_weight="1.6"
+            android:text="@string/accessibility_button" />
+
+        <TextView
+            android:id="@+id/btnRestrictedHelp"
+            style="@style/AppButtonGhost"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:text="@string/restricted_help"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAccessibilityState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/app_text_dim"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnEnable"
+            style="@style/AppButtonPrimary"
+            android:text="@string/btn_enable" />
+
+        <TextView
+            android:id="@+id/btnPick"
+            style="@style/AppButtonSecondary"
+            android:layout_marginStart="8dp"
+            android:text="@string/btn_pick" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvNotesTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/notes_title"
+            android:textColor="@color/app_text"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnAddNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_btn_primary"
+            android:clickable="true"
+            android:focusable="false"
+            android:paddingStart="12dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="7dp"
+            android:text="@string/add_note"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvNotes"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_marginTop="6dp"
+        android:clipToPadding="false"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/notes_empty"
+        android:textColor="@color/app_text_dim"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnBrowser"
+            style="@style/AppButtonGhost"
+            android:text="@string/browser_title" />
+
+        <TextView
+            android:id="@+id/btnExport"
+            style="@style/AppButtonGhost"
+            android:text="@string/export_notes" />
+
+        <TextView
+            android:id="@+id/btnImport"
+            style="@style/AppButtonGhost"
+            android:text="@string/import_notes" />
+
+        <TextView
+            android:id="@+id/btnDeleteAll"
+            style="@style/AppButtonGhost"
+            android:text="@string/delete_all" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="@string/speed_label"
+            android:textColor="@color/app_text_dim"
+            android:textSize="12sp" />
+
+        <SeekBar
+            android:id="@+id/seekSpeed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp" />
+
+        <TextView
+            android:id="@+id/tvSpeedValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="86dp"
+            android:gravity="end"
+            android:includeFontPadding="false"
+            android:textColor="@color/app_accent_dark"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tgLoop"
+            style="@style/AppToggle"
+            android:text="@string/tb_loop" />
+
+        <TextView
+            android:id="@+id/tgVoice"
+            style="@style/AppToggle"
+            android:text="@string/tb_voice" />
+
+        <TextView
+            android:id="@+id/tgLetters"
+            style="@style/AppToggle"
+            android:text="@string/letter_by_letter" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tgCaps"
+            style="@style/AppToggle"
+            android:text="@string/toggle_caps" />
+
+        <TextView
+            android:id="@+id/tgAutoSend"
+            style="@style/AppToggle"
+            android:text="@string/auto_send" />
+
+        <TextView
+            android:id="@+id/tgShuffle"
+            style="@style/AppToggle"
+            android:text="@string/tb_shuffle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tgScreenOn"
+            style="@style/AppToggle"
+            android:text="@string/keep_awake" />
+
+        <TextView
+            android:id="@+id/tgLoop2"
+            style="@style/AppToggle"
+            android:text="@string/tb_loop" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/status_bg"
+        android:padding="8dp"
+        android:text="@string/bg_explain"
+        android:textColor="@color/app_text_dim"
+        android:textSize="10sp" />
+
+    <EditText
+        android:id="@+id/etPractice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/practice_bg"
+        android:gravity="top|start"
+        android:hint="@string/practice_hint"
+        android:inputType="textMultiLine|textCapSentences"
+        android:maxLines="3"
+        android:minLines="2"
+        android:padding="10dp"
+        android:textColor="@color/app_text"
+        android:textColorHint="@color/app_text_dim"
+        android:textSize="13sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="@string/how_to_tip"
+        android:textColor="@color/app_text_dim"
+        android:textSize="10sp" />
+</LinearLayout>
+</ScrollView>

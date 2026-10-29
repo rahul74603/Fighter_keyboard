@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="6dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="6dp">
+
+        <TextView
+            android:id="@+id/btnBack"
+            style="@style/AppButtonGhost"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/br_back"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btnForward"
+            style="@style/AppButtonGhost"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/br_forward"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btnReload"
+            style="@style/AppButtonGhost"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/br_reload"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btnHome"
+            style="@style/AppButtonGhost"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/br_home"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btnOpenExternal"
+            style="@style/AppButtonGhost"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/br_open_app"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/practice_bg"
+        android:hint="@string/br_address_hint"
+        android:imeOptions="actionGo"
+        android:inputType="textUri"
+        android:maxLines="1"
+        android:paddingStart="10dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp"
+        android:selectAllOnFocus="true"
+        android:textColor="@color/app_text"
+        android:textColorHint="@color/app_text_dim"
+        android:textSize="12sp" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/btnQuickFb"
+                style="@style/BrowserChip"
+                android:text="@string/br_quick_fb" />
+
+            <TextView
+                android:id="@+id/btnQuickYt"
+                style="@style/BrowserChip"
+                android:text="@string/br_quick_yt" />
+
+            <TextView
+                android:id="@+id/btnQuickGoogle"
+                style="@style/BrowserChip"
+                android:text="@string/br_quick_google" />
+
+            <TextView
+                android:id="@+id/btnDesktop"
+                style="@style/BrowserChip"
+                android:text="@string/br_desktop" />
+
+            <TextView
+                android:id="@+id/btnBotPanel"
+                style="@style/BrowserChip"
+                android:text="@string/bot" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:id="@+id/botPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/practice_bg"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvBotInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bot_info"
+            android:textColor="@color/app_text_dim"
+            android:textSize="10sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnBotPickInput"
+                style="@style/BrowserChip"
+                android:layout_weight="1"
+                android:background="@drawable/app_toggle_chip"
+                android:gravity="center"
+                android:text="@string/bot_pick_input" />
+
+            <TextView
+                android:id="@+id/btnBotPickSend"
+                style="@style/BrowserChip"
+                android:layout_weight="1"
+                android:background="@drawable/app_toggle_chip"
+                android:gravity="center"
+                android:text="@string/bot_pick_send" />
+
+            <TextView
+                android:id="@+id/btnBotTest"
+                style="@style/BrowserChip"
+                android:layout_weight="1"
+                android:background="@drawable/app_toggle_chip"
+                android:gravity="center"
+                android:text="@string/bot_test" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnBotStart"
+                style="@style/AppButtonPrimary"
+                android:text="@string/bot_start" />
+
+            <TextView
+                android:id="@+id/btnBotStop"
+                style="@style/AppButtonGhost"
+                android:layout_marginStart="6dp"
+                android:text="@string/bot_stop" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnOverlayBot"
+                style="@style/AppButtonSecondary"
+                android:text="@string/overlay_bot" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvBotStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/app_text_dim"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:max="100"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <TextView
+            android:id="@+id/tvBrowserHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#E6101319"
+            android:padding="10dp"
+            android:text="@string/br_hint"
+            android:textColor="@color/kb_text"
+            android:textSize="11sp" />
+    </FrameLayout>
+</LinearLayout>
