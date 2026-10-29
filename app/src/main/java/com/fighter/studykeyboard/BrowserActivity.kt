@@ -14,6 +14,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -24,6 +25,10 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import com.fighter.studykeyboard.data.NoteStore
+import com.fighter.studykeyboard.data.PlayerPrefs
+import com.fighter.studykeyboard.play.BrowserBot
+import com.fighter.studykeyboard.play.BrowserBotService
 import com.fighter.studykeyboard.util.DebugLog
 
 /**
@@ -45,6 +50,10 @@ class BrowserActivity : Activity() {
     private lateinit var btnDesktop: TextView
 
     private var desktopMode = false
+    private var prefs: PlayerPrefs? = null
+    private var botPanel: View? = null
+    private var tvBotStatus: TextView? = null
+    private var learnKind: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +72,9 @@ class BrowserActivity : Activity() {
             return
         }
 
+        prefs = PlayerPrefs(this)
         configureWebView()
+        setupBot()
 
         findViewById<View>(R.id.btnBack).setOnClickListener {
             if (webView.canGoBack()) webView.goBack()
@@ -98,11 +109,99 @@ class BrowserActivity : Activity() {
             }
         }
 
+        BrowserBot.attach(webView, this)
         updateDesktopChip()
         DebugLog.log("Browser", "opened")
         val target = intent.getStringExtra(EXTRA_URL) ?: HOME_URL
         if (!hasNetwork()) showHint(getString(R.string.br_no_network))
         loadUrl(target)
+    }
+
+    // ------------------------------------------------------------------ bot
+
+    private fun setupBot() {
+        botPanel = findViewById(R.id.botPanel)
+        tvBotStatus = findViewById(R.id.tvBotStatus)
+
+        findViewById<View>(R.id.btnBotPanel).setOnClickListener {
+            val panel = botPanel ?: return@setOnClickListener
+            panel.visibility = if (panel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+        findViewById<View>(R.id.btnBotPickInput).setOnClickListener {
+            learnKind = "input"
+            BrowserBot.learn("input")
+            toast(getString(R.string.bot_learn_input))
+        }
+        findViewById<View>(R.id.btnBotPickSend).setOnClickListener {
+            learnKind = "send"
+            BrowserBot.learn("send")
+            toast(getString(R.string.bot_learn_send))
+        }
+        findViewById<View>(R.id.btnBotTest).setOnClickListener { runBotTest() }
+        findViewById<View>(R.id.btnBotStart).setOnClickListener {
+            if (NoteStore.get(this).all().isEmpty()) {
+                toast(getString(R.string.no_notes_hint))
+                return@setOnClickListener
+            }
+            BrowserBotService.start(this)
+            toast(getString(R.string.bot_started, NoteStore.get(this).count()))
+            updateBotStatus()
+        }
+        findViewById<View>(R.id.btnBotStop).setOnClickListener {
+            BrowserBotService.stop(this)
+            updateBotStatus()
+        }
+        updateBotStatus()
+    }
+
+    /** Sends exactly one note so the user can check the selectors. */
+    private fun runBotTest() {
+        val notes = NoteStore.get(this).all()
+        if (notes.isEmpty()) {
+            toast(getString(R.string.no_notes_hint))
+            return
+        }
+        val text = notes.first().text
+        BrowserBot.runOnce(text) { ok, message ->
+            DebugLog.log("Browser", "bot test ok=$ok $message")
+            toast(getString(if (ok) R.string.bot_test_ok else R.string.bot_test_fail))
+            tvBotStatus?.text = getString(R.string.bot_test_result, message.take(80))
+        }
+    }
+
+    private fun updateBotStatus() {
+        val notes = NoteStore.get(this).count()
+        val state = if (BrowserBot.running) getString(R.string.bot_stop) else getString(R.string.bot_start)
+        tvBotStatus?.text = "$notes notes • $state"
+    }
+
+    /** JS -> Kotlin bridge: learn mode + logs. */
+    inner class BotBridge {
+        @JavascriptInterface
+        fun pick(kind: String, selector: String) {
+            runOnUiThread {
+                val p = prefs ?: return@runOnUiThread
+                if (kind == "input") {
+                    BrowserBot.saveSelectors(this@BrowserActivity, selector, null)
+                    p.botInputSelector = selector
+                    toast(getString(R.string.bot_saved_input))
+                } else {
+                    BrowserBot.saveSelectors(this@BrowserActivity, null, selector)
+                    p.botSendSelector = selector
+                    toast(getString(R.string.bot_saved_send))
+                }
+                DebugLog.log("Browser", "picked $kind -> $selector")
+            }
+        }
+
+        @JavascriptInterface
+        fun log(message: String) {
+            DebugLog.log("BrowserJS", message)
+        }
+    }
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun configureWebView() {
@@ -112,6 +211,11 @@ class BrowserActivity : Activity() {
 
         val settings = webView.settings
         settings.javaScriptEnabled = true
+        try {
+            webView.addJavascriptInterface(BotBridge(), "FighterBot")
+        } catch (error: Exception) {
+            DebugLog.log("Browser", error)
+        }
         settings.domStorageEnabled = true
         @Suppress("DEPRECATION")
         settings.databaseEnabled = true
@@ -291,14 +395,21 @@ class BrowserActivity : Activity() {
     override fun onBackPressed() {
         if (this::webView.isInitialized && webView.canGoBack()) {
             webView.goBack()
-        } else {
-            super.onBackPressed()
+            return
         }
+        if (BrowserBot.running) {
+            moveTaskToBack(true)
+            toast(getString(R.string.bot_background))
+            return
+        }
+        super.onBackPressed()
     }
 
     override fun onPause() {
         super.onPause()
-        if (this::webView.isInitialized) webView.onPause()
+        // While the bot runs the WebView must keep executing JavaScript in the
+        // background, so it is not paused (foreground service keeps us alive).
+        if (this::webView.isInitialized && !BrowserBot.running) webView.onPause()
     }
 
     override fun onResume() {
@@ -307,6 +418,10 @@ class BrowserActivity : Activity() {
     }
 
     override fun onDestroy() {
+        if (this::webView.isInitialized) {
+            BrowserBot.detach(webView)
+            if (!BrowserBot.running) BrowserBotService.stop(this)
+        }
         try {
             webView.stopLoading()
             webView.destroy()

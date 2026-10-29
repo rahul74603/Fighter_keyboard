@@ -24,7 +24,7 @@ Sab kuch **offline, phone me hi** save hota hai (koi login/server nahi).
 
 ### Option 1 — seedha APK download (sabse aasan)
 **Releases** page kholo: <https://github.com/rahul74603/Fighter_keyboard/releases/latest> →
-`fighter-study-keyboard-v2.4.0.apk` download karo → phone me install karo
+`fighter-study-keyboard-v2.5.0.apk` download karo → phone me install karo
 (Unknown sources / "Install unknown apps" allow karna padega).
 
 Ya phir **Actions** tab → latest `Build APK` run → **Artifacts** → `fighter-study-keyboard-apk` (zip).
@@ -78,6 +78,19 @@ Res: `layout/keyboard_view.xml` (keyboard + notes panel), `layout/activity_main.
 - APK ek **fixed signing key** se sign hota hai (`keystore/fighter-study.p12`) taaki naya version purane ke **upar seedha install** ho jaye aur notes bane rahein.
 - Sirf **v1.1.0 / v1.2.0** se aate waqt ek baar purana version uninstall karna padega (un builds ka key alag tha). Pehle **Export** dabao → JSON clipboard me aa jayega (WhatsApp/Keep me paste kar lo) → reinstall → **Import**.
 - Ye key demo/personal use ke liye hai. Play Store pe publish karna ho to apni private key (Play App Signing) use karo.
+
+## v2.5 — Browser bot (background me send, app ke andar)
+
+App ke **Browser** me naya **Bot** panel:
+
+1. Bot panel kholo → FB/YouTube pe **login** karo (ek baar)
+2. Comment/message **box par tap** karo → **“Box chuno”** (keyboard se rukega nahi, tap record hota hai)
+3. **Send button par tap** karo → **“Send chuno”**
+4. **Start bot** → har note khud type + send, **4-10 sec** ke gap se, shuffle + loop ke saath
+
+Kaise background me chalta hai: DOM operations WebView me `evaluateJavascript` se chalte hain aur **queue Kotlin (foreground service + wake lock)** chalata hai — isliye **app minimise / back / screen lock** hone par bhi bot notes bhejta rehta hai. Notification me Stop button. Back dabane par app background me jata hai (finish nahi hota).
+
+Note: ye aapke hi account me, aapke hi browser ke andar chalta hai (koi server nahi, koi data bahar nahi). FB/Insta ki automation policy ke against ho sakta hai — slow gap (min 4s) rakha gaya hai to risk kam hai, par account aapki hai.
 
 ## v2.4 — Screen on (auto-lock fix) + Loop toggle app me
 
